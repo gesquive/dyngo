@@ -1,4 +1,0 @@
-package: .
-import:
-- package: github.com/mitchellh/cli
-- package: github.com/juju/loggo

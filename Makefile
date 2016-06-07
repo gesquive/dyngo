@@ -4,8 +4,10 @@
 #  The kickoff point for all project management commands.
 #
 
+GOCC := go
+
 # Program version
-VERSION := $(shell grep "const Version " version.go | sed -E 's/.*"(.+)"$$/\1/')
+VERSION := $(shell git describe --always --tags)
 
 # Binary name for bintray
 BIN_NAME=digitalocean-ddns
@@ -28,9 +30,11 @@ GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 
 # Use a local vendor directory for any dependencies; comment this out to
 # use the global GOPATH instead
-GOPATH=$(PWD)/vendor
+# GOPATH=$(PWD)
 
-INSTALL_PATH=$(GOPATH)/src/github.com/gesquive/digitalocean-ddns
+INSTALL_PATH=$(GOPATH)/${REPO_HOST_URL}/${OWNER}/${PROJECT_NAME}
+
+FIND_DIST:=find * -type d -exec
 
 default: build
 
@@ -41,23 +45,55 @@ help:
 	@echo '    make build    Compile the project.'
 	@echo '    make link     Symlink this project into the GOPATH.'
 	@echo '    make test     Run tests on a compiled project.'
+	@echo '    make install  Install binary'
+	@echo '    make depends  Download dependencies'
 	@echo '    make fmt      Reformat the source tree with gofmt.'
 	@echo '    make clean    Clean the directory tree.'
+	@echo '    make dist     Cross compile the full distribution'
 	@echo
 
-build: .git glide $(INSTALL_PATH)
+build:
 	@echo "building ${OWNER} ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	glide install && \
-	go build -ldflags "-X main.GitCommit ${GIT_COMMIT}${GIT_DIRTY}" -o bin/${BIN_NAME}
+	${GOCC} build -ldflags "-X main.version=${VERSION} -X main.dirty=${GIT_DIRTY}" -o ${BIN_NAME}
+
+install: build
+	install -d ${DESTDIR}/usr/local/bin/
+	install -m 755 ./${BIN_NAME} ${DESTDIR}/usr/local/bin/${BIN_NAME}
+
+depends:
+	${GOCC} get -u github.com/Masterminds/glide
+	glide install
+
+test:
+	${GOCC} test ./...
 
 clean:
-	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
+	${GOCC} clean
+	rm -f ./${BIN_NAME}.test
+	rm -f ./${BIN_NAME}
+	rm -rf ./dist
 
-.git:
-	git init
-	git add -A .
-	git commit -m 'Initial scaffolding.'
+bootstrap-dist:
+	${GOCC} get -u github.com/mitchellh/gox
+
+build-all: bootstrap-dist
+	gox -verbose \
+	-ldflags "-X main.version=${VERSION}" \
+	-os="linux darwin windows " \
+	-arch="amd64 386" \
+	-output="dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
+
+dist: build-all
+	cd dist && \
+	$(FIND_DIST) cp ../LICENSE {} \; && \
+	$(FIND_DIST) cp ../README.md {} \; && \
+	$(FIND_DIST) tar -zcf glide-${VERSION}-{}.tar.gz {} \; && \
+	$(FIND_DIST) zip -r glide-${VERSION}-{}.zip {} \; && \
+	cd ..
+
+fmt:
+	find . -name '*.go' -not -path './.vendor/*' -exec gofmt -w=true {} ';'
 
 link:
 	# relink into the go path
@@ -66,17 +102,5 @@ link:
 		ln -s $(PWD) $(INSTALL_PATH); \
 	fi
 
-$(INSTALL_PATH):
-	make link
 
-glide:
-	mkdir -p $(PWD)/vendor/src
-	glide install
-
-test:
-	go test ./...
-
-fmt:
-	find . -name '*.go' -not -path './.vendor/*' -exec gofmt -w=true {} ';'
-
-.PHONY: build dist clean test help default link fmt
+.PHONY: build help test install depends clean bootstrap-dist build-all dist fmt link

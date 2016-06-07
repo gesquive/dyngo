@@ -1,8 +1,0 @@
-hash: c1d111887ad40892cee7159fded6005598335d73795fb607c8c98d4a37a5be4c
-updated: 2016-05-27T13:42:34.633772503-05:00
-imports:
-- name: github.com/juju/loggo
-  version: 0e0537f18a29c2f0a814dad75b1ccc577852538a
-- name: github.com/mitchellh/cli
-  version: 168daae10d6ff81b8b1201b0a4c9607d7e9b82e3
-devImports: []
