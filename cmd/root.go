@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,22 +19,31 @@ var showVersion bool
 var verbose bool
 var debug bool
 
+// RootCmd handles all of our arguments/options
 var RootCmd = &cobra.Command{
 	Use:   "digitalocean-ddns",
 	Short: "Use digitalocean as your DDNS service",
 	Long: `A service application that watches your external IP for changes
 and updates a DigitalOcean domain when a change is detected`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if showVersion {
 			fmt.Println(displayVersion)
 			os.Exit(1)
 		}
-		// fmt.Println(viper.Get("username"))
-		fmt.Printf("Username: %s\n", viper.Get("username"))
-		fmt.Printf("Password: %s\n", viper.Get("password"))
-		fmt.Printf("Domain  : %s\n", viper.Get("domain"))
+
+		log.SetFormatter(&log.TextFormatter{
+			TimestampFormat: time.RFC3339,
+			FullTimestamp:   true,
+		})
+		log.SetOutput(os.Stdout)
+		log.SetLevel(log.InfoLevel)
+
+		if debug {
+			log.SetLevel(log.DebugLevel)
+		}
+		log.Debugf("Username: %s\n", viper.Get("username"))
+		log.Debugf("Password: %s\n", viper.Get("password"))
+		log.Debugf("Domain  : %s\n", viper.Get("domain"))
 	},
 }
 
@@ -51,8 +62,6 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"config file (default is ./config.yaml)")
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	RootCmd.PersistentFlags().StringVarP(&doUserName, "username", "u", "",
 		"the DigitalOcean username to authenticate with")
 	RootCmd.PersistentFlags().StringVarP(&doPassword, "password", "p", "",
