@@ -8,6 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 var cfgFile string
@@ -31,9 +32,8 @@ and updates a DigitalOcean domain when a change is detected`,
 			os.Exit(1)
 		}
 
-		log.SetFormatter(&log.TextFormatter{
+		log.SetFormatter(&prefixed.TextFormatter{
 			TimestampFormat: time.RFC3339,
-			FullTimestamp:   true,
 		})
 		log.SetOutput(os.Stdout)
 		log.SetLevel(log.InfoLevel)
@@ -93,7 +93,7 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println("Error opening config: ", err)
 	}
 }
