@@ -80,6 +80,16 @@ func init() {
 	viper.BindPFlag("username", RootCmd.PersistentFlags().Lookup("username"))
 	viper.BindPFlag("password", RootCmd.PersistentFlags().Lookup("password"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
+
+	viper.SetDefault("url_list", []string{
+		"http://icanhazip.com",
+		"http://whatismyip.akamai.com/",
+		"http://whatsmyip.me/",
+		"http://wtfismyip.com/text",
+		"http://api.ipify.org/",
+		"http://ip.catnapgames.com",
+		"http://ip.ryansanden.com",
+	})
 }
 
 // initConfig reads in config file and ENV variables if set.

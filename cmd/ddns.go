@@ -29,7 +29,7 @@ func RunSync(token string, domainRecord string) {
 //SyncDomain sets a domain record point to our public IP address
 func SyncDomain(token string, domainRecord string) {
 	// First get our public IP
-	currentIP, err := getPublicIPAddress([]string{})
+	currentIP, err := getPublicIPAddress()
 	if err != nil {
 		log.Errorf("sync: could not get public ip address")
 		log.Errorf("sync: err=%s", err)
@@ -99,20 +99,10 @@ func getDomain(domainRecord string) (domain string) {
 	return
 }
 
-func getPublicIPAddress(ipCheckServices []string) (ipAddress string, err error) {
+func getPublicIPAddress() (ipAddress string, err error) {
 	//TODO: make this into a for loop with limited attempts to get a public IP
-	if ipCheckServices == nil || len(ipCheckServices) == 0 {
-		ipCheckServices = []string{
-			"http://icanhazip.com",
-			"http://whatismyip.akamai.com/",
-			"http://whatsmyip.me/",
-			"http://wtfismyip.com/text",
-			"http://api.ipify.org/",
-			"http://ip.catnapgames.com",
-			"http://ip.ryansanden.com",
-		}
+	ipCheckServices := viper.GetStringSlice("url_list")
 
-	}
 	rand.Seed(time.Now().Unix())
 	victim := rand.Intn(len(ipCheckServices))
 	url := ipCheckServices[victim]
