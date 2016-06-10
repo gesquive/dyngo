@@ -12,9 +12,6 @@ import (
 )
 
 var cfgFile string
-var doToken string
-var doDomain string
-var checkUrlList []string
 
 var displayVersion string
 var showVersion bool
@@ -66,10 +63,10 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"config file (default is ./config.yaml)")
-	RootCmd.PersistentFlags().StringVarP(&doToken, "token", "t", "",
-		"the DigitalOcean username to authenticate with")
-	RootCmd.PersistentFlags().StringVarP(&doDomain, "domain", "d", "",
-		"the DigitalOcean domain to update")
+	RootCmd.PersistentFlags().StringP("token", "t", "",
+		"the DigitalOcean API token to authenticate with")
+	RootCmd.PersistentFlags().StringP("domain", "d", "",
+		"the DigitalOcean domain record to update")
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit.")
 	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false,
@@ -77,8 +74,12 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false,
 		"Include debug statements in log output")
 
-	viper.BindPFlag("username", RootCmd.PersistentFlags().Lookup("username"))
-	viper.BindPFlag("password", RootCmd.PersistentFlags().Lookup("password"))
+	viper.SetEnvPrefix("doddns")
+	viper.AutomaticEnv()
+	viper.BindEnv("token")
+	viper.BindEnv("domain")
+
+	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
 
 	viper.SetDefault("url_list", []string{
