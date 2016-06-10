@@ -100,28 +100,40 @@ func getDomain(domainRecord string) (domain string) {
 }
 
 func getPublicIPAddress() (ipAddress string, err error) {
-	//TODO: make this into a for loop with limited attempts to get a public IP
+	maxAttempts := 3
 	ipCheckServices := viper.GetStringSlice("url_list")
-
 	rand.Seed(time.Now().Unix())
-	victim := rand.Intn(len(ipCheckServices))
-	url := ipCheckServices[victim]
-	log.Infof("ipchk: using '%s' for ip check", url)
+	gotIP := false
 
-	response, err := http.Get(url)
-	if err != nil {
-		log.Errorf("ipchk: Failed to get ip from '%s'", url)
-		return
+	for i := 0; i < maxAttempts && !gotIP; i++ {
+		victim := rand.Intn(len(ipCheckServices))
+		url := ipCheckServices[victim]
+		log.Infof("ipchk: using '%s' for ip check", url)
+
+		response, herr := http.Get(url)
+		if herr != nil {
+			log.Errorf("ipchk: Failed to get ip from '%s'", url)
+			log.Errorf("ipchk: err=%s", herr)
+			continue
+		}
+		defer response.Body.Close()
+		body, berr := ioutil.ReadAll(response.Body)
+		if berr != nil {
+			log.Errorf("ipchk: Could not read response from '%s'", url)
+			log.Errorf("ipchk: err=%s", berr)
+			continue
+		}
+		ipAddress = strings.TrimSpace(string(body))
+		if net.ParseIP(ipAddress) == nil {
+			log.Errorf("ipchk: response is not a valid IP address. response='%s'",
+				ipAddress)
+			ipAddress = ""
+			continue
+		}
+		gotIP = true
 	}
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Errorf("ipchk: Could not read response from '%s'", url)
-		return
-	}
-	ipAddress = strings.TrimSpace(string(body))
-	if net.ParseIP(ipAddress) == nil {
-		err = fmt.Errorf("ipchk: response is not a valid IP Address. response='%s'", ipAddress)
+	if !gotIP {
+		err = fmt.Errorf("ran out of attempts to get IP address")
 	}
 	return ipAddress, err
 }
