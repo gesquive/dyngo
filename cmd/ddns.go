@@ -11,6 +11,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/digitalocean/godo"
+	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
 
@@ -34,7 +35,7 @@ func SyncDomain(token string, domainRecord string) {
 		log.Errorf("sync: err=%s", err)
 		return
 	}
-	log.Debugf("sync: got public IP address=%s", currentIP)
+	log.Infof("sync: got public IP address=%s", currentIP)
 
 	// Second, authenticate with DigitalOcean
 	client := doAuth(token)
@@ -65,6 +66,26 @@ func SyncDomain(token string, domainRecord string) {
 	}
 	log.Debugf("sync: found matching record id=%d ip=%s",
 		records[matchingIdx].ID, records[matchingIdx].Data)
+
+	if currentIP == records[matchingIdx].Data {
+		log.Infof("sync: record does not need to be updated")
+		return
+	}
+
+	// Else, we need to update the domain record
+	editRequest := &godo.DomainRecordEditRequest{
+		Type: "A",
+		Data: currentIP,
+	}
+	_, _, err = client.Domains.EditRecord(domain, records[matchingIdx].ID,
+		editRequest)
+	if err != nil {
+		log.Errorf("sync: could not update domain record domain=%s id=%d",
+			domain, records[matchingIdx].ID)
+		log.Errorf("sync: err=%s", err)
+		return
+	}
+	log.Infof("sync: record successfully updated")
 }
 
 func getDomain(domainRecord string) (domain string) {
@@ -95,22 +116,22 @@ func getPublicIPAddress(ipCheckServices []string) (ipAddress string, err error) 
 	rand.Seed(time.Now().Unix())
 	victim := rand.Intn(len(ipCheckServices))
 	url := ipCheckServices[victim]
-	log.Infof("using '%s' for ip check", url)
+	log.Infof("ipchk: using '%s' for ip check", url)
 
 	response, err := http.Get(url)
 	if err != nil {
-		log.Errorf("Failed to get ip from '%s'", url)
+		log.Errorf("ipchk: Failed to get ip from '%s'", url)
 		return
 	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Errorf("Could not read response from '%s'", url)
+		log.Errorf("ipchk: Could not read response from '%s'", url)
 		return
 	}
 	ipAddress = strings.TrimSpace(string(body))
 	if net.ParseIP(ipAddress) == nil {
-		err = fmt.Errorf("Response is not a valid IP Address. response='%s'", ipAddress)
+		err = fmt.Errorf("ipchk: response is not a valid IP Address. response='%s'", ipAddress)
 	}
 	return ipAddress, err
 }
