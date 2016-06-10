@@ -12,9 +12,10 @@ import (
 )
 
 var cfgFile string
-var doUserName string
-var doPassword string
+var doToken string
 var doDomain string
+var checkUrlList []string
+
 var displayVersion string
 var showVersion bool
 var verbose bool
@@ -41,9 +42,12 @@ and updates a DigitalOcean domain when a change is detected`,
 		if debug {
 			log.SetLevel(log.DebugLevel)
 		}
-		log.Debugf("Username: %s\n", viper.Get("username"))
-		log.Debugf("Password: %s\n", viper.Get("password"))
-		log.Debugf("Domain  : %s\n", viper.Get("domain"))
+		log.Infof("config: file=%s", viper.ConfigFileUsed())
+		log.Debugf("config: domain=%s token=%s...",
+			viper.GetString("domain"),
+			viper.GetString("token")[:5])
+
+		RunSync(viper.GetString("token"), viper.GetString("domain"))
 	},
 }
 
@@ -62,18 +66,16 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"config file (default is ./config.yaml)")
-	RootCmd.PersistentFlags().StringVarP(&doUserName, "username", "u", "",
+	RootCmd.PersistentFlags().StringVarP(&doToken, "token", "t", "",
 		"the DigitalOcean username to authenticate with")
-	RootCmd.PersistentFlags().StringVarP(&doPassword, "password", "p", "",
-		"the DigitalOcean password to authenticate with")
 	RootCmd.PersistentFlags().StringVarP(&doDomain, "domain", "d", "",
 		"the DigitalOcean domain to update")
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit.")
 	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false,
-		"Print logs to stdout")
+		"Print logs to stdout instead of file")
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false,
-		"Print out debug statements")
+		"Include debug statements in log output")
 
 	viper.BindPFlag("username", RootCmd.PersistentFlags().Lookup("username"))
 	viper.BindPFlag("password", RootCmd.PersistentFlags().Lookup("password"))
