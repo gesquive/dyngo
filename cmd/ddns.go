@@ -61,7 +61,13 @@ func SyncDomain(token string, domainRecord string) {
 	}
 	if matchingIdx < 0 {
 		log.Infof("sync: no matching record found, will attempt to create")
-		//TODO: create a new record
+		_, err = createDomainRecord(client, domain, domainRecord, currentIP)
+		if err != nil {
+			log.Errorf("sync: could not create a new domain record")
+			log.Errorf("sync: err=%s", err)
+		} else {
+			log.Infof("sync: new record successfully created")
+		}
 		return
 	}
 	log.Debugf("sync: found matching record id=%d ip=%s",
@@ -169,4 +175,15 @@ func getDomainRecords(client *godo.Client, domain string) ([]godo.DomainRecord, 
 
 	records, _, err := client.Domains.Records(domain, opt)
 	return records, err
+}
+
+func createDomainRecord(client *godo.Client, domain string, domainRecord string, ipAddress string) (*godo.DomainRecord, error) {
+	createRequest := &godo.DomainRecordEditRequest{
+		Type: "A",
+		Name: domainRecord,
+		Data: ipAddress,
+	}
+
+	record, _, err := client.Domains.CreateRecord(domain, createRequest)
+	return record, err
 }
