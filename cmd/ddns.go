@@ -15,9 +15,13 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Run runs
-func Run() {
-	log.Infoln("Running")
+// RunService runs as a service
+func RunService(token string, domainRecord string, syncInterval time.Duration) {
+	log.Infof("service: run as service every %s", syncInterval)
+	for {
+		go SyncDomain(token, domainRecord)
+		time.Sleep(syncInterval)
+	}
 }
 
 // RunSync syncs your public IP with the given domain

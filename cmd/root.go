@@ -15,6 +15,7 @@ var cfgFile string
 
 var displayVersion string
 var showVersion bool
+var singleRun bool
 var verbose bool
 var debug bool
 
@@ -44,7 +45,18 @@ and updates a DigitalOcean domain when a change is detected`,
 			viper.GetString("domain"),
 			viper.GetString("token")[:5])
 
-		RunSync(viper.GetString("token"), viper.GetString("domain"))
+		if singleRun {
+			RunSync(viper.GetString("token"), viper.GetString("domain"))
+		} else {
+			interval, err := time.ParseDuration(viper.GetString("sync_interval"))
+			if err != nil {
+				log.Errorf("config: the given sync value is invalid sync_interval=%s err=%s",
+					viper.GetString("sync_interval"), err)
+				os.Exit(1)
+			}
+			RunService(viper.GetString("token"), viper.GetString("domain"),
+				interval)
+		}
 	},
 }
 
@@ -73,15 +85,22 @@ func init() {
 		"Print logs to stdout instead of file")
 	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false,
 		"Include debug statements in log output")
+	RootCmd.PersistentFlags().StringP("sync-interval", "i", "60m",
+		"When running as a service, the duration between sync checks (default: 60m)")
+	RootCmd.PersistentFlags().BoolVarP(&singleRun, "sync", "s", false,
+		"Only run one sync and exit.")
 
 	viper.SetEnvPrefix("doddns")
 	viper.AutomaticEnv()
 	viper.BindEnv("token")
 	viper.BindEnv("domain")
+	viper.BindEnv("sync-interval")
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
+	viper.BindPFlag("sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
 
+	viper.SetDefault("sync_interval", "60m")
 	viper.SetDefault("url_list", []string{
 		"http://icanhazip.com",
 		"http://whatismyip.akamai.com/",
