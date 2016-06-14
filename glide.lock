@@ -1,0 +1,18 @@
+hash: 3ef752fbd24722f3c776d73367e60acc96a34fa2c9e3db75045e9fb334819655
+updated: 2016-06-15T08:36:50.749873847-05:00
+imports:
+- name: github.com/digitalocean/godo
+  version: cacf7fa36edebacb47956d2c325c91be0e142f40
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/Sirupsen/logrus
+  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+- name: github.com/spf13/cobra
+  version: 1238ba19d24b0b9ceee2094e1cb31947d45c3e86
+- name: github.com/spf13/viper
+  version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+- name: github.com/x-cray/logrus-prefixed-formatter
+  version: 19bfe61502ba35a3235b4970c10b9366a0aa9b61
+- name: golang.org/x/oauth2
+  version: 65a8d08c6292395d47053be10b3c5e91960def76
+devImports: []

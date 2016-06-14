@@ -1,0 +1,9 @@
+package: github.com/gesquive/digitalocean-ddns
+import:
+- package: github.com/Sirupsen/logrus
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/x-cray/logrus-prefixed-formatter
+- package: github.com/digitalocean/godo
+- package: golang.org/x/oauth2
+- package: github.com/inconshreveable/mousetrap
