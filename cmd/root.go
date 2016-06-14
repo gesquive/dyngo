@@ -24,7 +24,7 @@ var RootCmd = &cobra.Command{
 	Use:   "digitalocean-ddns",
 	Short: "Use digitalocean as your DDNS service",
 	Long: `A service application that watches your external IP for changes
-and updates a DigitalOcean domain when a change is detected`,
+and updates a DigitalOcean domain record when a change is detected`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if showVersion {
 			fmt.Println(displayVersion)
@@ -37,6 +37,7 @@ and updates a DigitalOcean domain when a change is detected`,
 		log.SetOutput(os.Stdout)
 		log.SetLevel(log.InfoLevel)
 
+		// TODO: properly setup a log file
 		if debug {
 			log.SetLevel(log.DebugLevel)
 		}
@@ -74,21 +75,25 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
-		"config file (default is ./config.yaml)")
-	RootCmd.PersistentFlags().StringP("token", "t", "",
-		"the DigitalOcean API token to authenticate with")
-	RootCmd.PersistentFlags().StringP("domain", "d", "",
-		"the DigitalOcean domain record to update")
+		"Path to a specific config file (default is ./config.yaml)")
+
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
-		"Display the version number and exit.")
-	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false,
-		"Print logs to stdout instead of file")
-	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false,
-		"Include debug statements in log output")
+		"Display the version number and exit")
+	RootCmd.PersistentFlags().BoolVarP(&singleRun, "run-once", "o", false,
+		"Only run once and exit.")
+
+	RootCmd.PersistentFlags().StringP("token", "t", "",
+		"The DigitalOcean API token to authenticate with")
+	RootCmd.PersistentFlags().StringP("domain", "d", "",
+		"The DigitalOcean domain record to update")
 	RootCmd.PersistentFlags().StringP("sync-interval", "i", "60m",
-		"When running as a service, the duration between sync checks (default: 60m)")
-	RootCmd.PersistentFlags().BoolVarP(&singleRun, "sync", "s", false,
-		"Only run one sync and exit.")
+		"The duration between DNS updates")
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false,
+		"Print logs to stdout instead of file")
+
+	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false,
+		"Include debug statements in log output")
+	RootCmd.PersistentFlags().MarkHidden("debug")
 
 	viper.SetEnvPrefix("doddns")
 	viper.AutomaticEnv()
@@ -99,6 +104,7 @@ func init() {
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
 	viper.BindPFlag("sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
+	viper.BindPFlag("run_once", RootCmd.PersistentFlags().Lookup("run-once"))
 
 	viper.SetDefault("sync_interval", "60m")
 	viper.SetDefault("url_list", []string{

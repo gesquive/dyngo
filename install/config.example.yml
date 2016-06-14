@@ -1,0 +1,17 @@
+# Your DigitalOcean API token
+# Generate your own: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token
+token: obxmw2sef58156crn6fn089q1nokyfgp9kl647l16br4hzfcw80r4dm6rth9871u
+# The domain record on the DigitalOcean NS to update
+domain: my.domain.com
+# If running as a service, the amount of time to run between sync
+# Valid values are parsed by golang's duration class: https://golang.org/pkg/time/#ParseDuration
+sync_interval: 1h
+# If you want to run once every time, set to true
+run_once: false
+# A list of urls to get plain text public IP from
+url_list:
+  - "http://icanhazip.com"
+  - "http://whatsmyip.me/"
+  - "http://wtfismyip.com/text"
+  - "http://api.ipify.org/"
+  - "http://ip.ryansanden.com"
