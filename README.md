@@ -64,6 +64,13 @@ Flags:
 
 It is helpful to use the `--run-once` combined with the `--verbose` flags when first setting up to find any misconfigurations.
 
+Optionally, a hidden debug flag is available in case you need additional output.
+```console
+Hidden Flags:
+  -D, --debug                  Include debug statements in log output
+```
+
+
 ##### Cronjob
 To run as a cronjob on an Ubuntu system create a cronjob entry under the user the app is run with. If running as root, you can copy `install/digitalocean-ddns.cron` to `/etc/cron.d/digitalocean-ddns` or copy the following into you preferred crontab:
 ```shell
@@ -77,22 +84,9 @@ By default, the process is setup to run as a service. Feel free to use upstart, 
 
 <!-- TODO: Write up examples of these various files -->
 
-## Development
+## Documentation
 
-This project requires Go to be installed.
-
-Running it should be as simple as:
-
-```console
-$ make
-$ ./bin/digitalocean-ddns
-```
-
-Optionally, a hidden debug flag is available in case you need additional output.
-```console
-Hidden Flags:
-  -D, --debug                  Include debug statements in log output
-```
+This documentation can be found at github.com/gesquive/digitalocean-ddns
 
 ## License
 

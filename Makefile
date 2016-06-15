@@ -4,6 +4,8 @@
 #  The kickoff point for all project management commands.
 #
 
+# TODO: Add cronjob install
+# TODO: Add service install
 GOCC := go
 
 # Program version
@@ -42,13 +44,13 @@ help:
 	@echo 'Management commands for digitalocean-ddns:'
 	@echo
 	@echo 'Usage:'
-	@echo '    make build    Compile the project.'
-	@echo '    make link     Symlink this project into the GOPATH.'
-	@echo '    make test     Run tests on a compiled project.'
+	@echo '    make build    Compile the project'
+	@echo '    make link     Symlink this project into the GOPATH'
+	@echo '    make test     Run tests on a compiled project'
 	@echo '    make install  Install binary'
 	@echo '    make depends  Download dependencies'
-	@echo '    make fmt      Reformat the source tree with gofmt.'
-	@echo '    make clean    Clean the directory tree.'
+	@echo '    make fmt      Reformat the source tree with gofmt'
+	@echo '    make clean    Clean the directory tree'
 	@echo '    make dist     Cross compile the full distribution'
 	@echo
 
@@ -79,7 +81,7 @@ bootstrap-dist:
 
 build-all: bootstrap-dist
 	gox -verbose \
-	-ldflags "-X main.version=${VERSION}" \
+	-ldflags "-X main.version=${VERSION} -X main.dirty=${GIT_DIRTY}" \
 	-os="linux darwin windows " \
 	-arch="amd64 386" \
 	-output="dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
@@ -88,8 +90,8 @@ dist: build-all
 	cd dist && \
 	$(FIND_DIST) cp ../LICENSE {} \; && \
 	$(FIND_DIST) cp ../README.md {} \; && \
-	$(FIND_DIST) tar -zcf glide-${VERSION}-{}.tar.gz {} \; && \
-	$(FIND_DIST) zip -r glide-${VERSION}-{}.zip {} \; && \
+	$(FIND_DIST) tar -zcf ${PROJECT_NAME}-${VERSION}-{}.tar.gz {} \; && \
+	$(FIND_DIST) zip -r ${PROJECT_NAME}-${VERSION}-{}.zip {} \; && \
 	cd ..
 
 fmt:
