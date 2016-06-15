@@ -53,8 +53,9 @@ Usage:
   digitalocean-ddns [flags]
 
 Flags:
-      --config string          Path to a specific config file (default is ./config.yaml)
+      --config string          Path to a specific config file (default "./config.yaml")
   -d, --domain string          The DigitalOcean domain record to update
+      --log-path string        Path to log files (default "/var/log/")
   -o, --run-once               Only run once and exit.
   -i, --sync-interval string   The duration between DNS updates (default "60m")
   -t, --token string           The DigitalOcean API token to authenticate with
@@ -82,8 +83,6 @@ Add any flags/env vars needed to make sure the job runs as intended. If not usin
 ##### Service
 By default, the process is setup to run as a service. Feel free to use upstart, init, runit or any other service manager to run the `digitalocean-ddns` executable.
 
-<!-- TODO: Write up examples of these various files -->
-
 ## Documentation
 
 This documentation can be found at github.com/gesquive/digitalocean-ddns
@@ -95,3 +94,8 @@ This package is made available under an MIT-style license. See LICENSE.
 ## Contributing
 
 PRs are always welcome!
+
+
+<!-- TODO: Include some default upstart/init scripts -->
+<!-- TODO: Include a logrotate script -->
+<!-- TODO: Create a detailed service install script -->

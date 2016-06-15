@@ -6,6 +6,8 @@ domain: my.domain.com
 # If running as a service, the amount of time to run between sync
 # Valid values are parsed by golang's duration class: https://golang.org/pkg/time/#ParseDuration
 sync_interval: 1h
+# The path to log into
+log_path: /var/log
 # If you want to run once every time, set to true
 run_once: false
 # A list of urls to get plain text public IP from

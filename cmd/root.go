@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -12,6 +13,7 @@ import (
 )
 
 var cfgFile string
+var logPath string
 
 var displayVersion string
 var showVersion bool
@@ -34,12 +36,25 @@ and updates a DigitalOcean domain record when a change is detected`,
 		log.SetFormatter(&prefixed.TextFormatter{
 			TimestampFormat: time.RFC3339,
 		})
-		log.SetOutput(os.Stdout)
-		log.SetLevel(log.InfoLevel)
 
-		// TODO: properly setup a log file
+		logPath = path.Dir(viper.GetString("log_path"))
+		logPath = fmt.Sprintf("%s/digitalocean-ddns.log", logPath)
+		if verbose {
+			log.SetOutput(os.Stdout)
+			log.Infof("config: would have logged too file=%s", logPath)
+		} else {
+			logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+			if err != nil {
+				log.Fatalf("error opening log file=%v", err)
+			}
+			defer logFile.Close()
+			log.SetOutput(logFile)
+		}
+
 		if debug {
 			log.SetLevel(log.DebugLevel)
+		} else {
+			log.SetLevel(log.InfoLevel)
 		}
 		log.Infof("config: file=%s", viper.ConfigFileUsed())
 		log.Debugf("config: domain=%s token=%s...",
@@ -75,7 +90,9 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
-		"Path to a specific config file (default is ./config.yaml)")
+		"Path to a specific config file (default \"./config.yaml\")")
+	RootCmd.PersistentFlags().String("log-path", "",
+		"Path to log files (default \"/var/log/\")")
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit")
@@ -100,12 +117,15 @@ func init() {
 	viper.BindEnv("token")
 	viper.BindEnv("domain")
 	viper.BindEnv("sync-interval")
+	viper.BindEnv("log-path")
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
 	viper.BindPFlag("sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
 	viper.BindPFlag("run_once", RootCmd.PersistentFlags().Lookup("run-once"))
+	viper.BindPFlag("log_path", RootCmd.PersistentFlags().Lookup("log-path"))
 
+	viper.SetDefault("log_path", "/var/log/")
 	viper.SetDefault("sync_interval", "60m")
 	viper.SetDefault("url_list", []string{
 		"http://icanhazip.com",
