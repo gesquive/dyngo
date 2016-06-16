@@ -5,7 +5,7 @@ import "fmt"
 import "path/filepath"
 import "github.com/gesquive/digitalocean-ddns/cmd"
 
-var version = "0.1.0"
+var version = "0.1.1"
 var dirty = ""
 
 func main() {
