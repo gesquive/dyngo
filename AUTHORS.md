@@ -2,7 +2,7 @@
 
 ## Development Lead
 
-- Gus Esquivel <gesquive@gmail.com>
+- Gus Esquivel <gesquive@gmail>
 
 ## Contributors
 

@@ -3,7 +3,7 @@
 Sync a DigitalOcean Domain Record entry with your public IP.
 
 ###### Why?
-I created this because the domain I own was being managed on the DigitalOcean nameservers and I didn't want to pay for a DDNS servers for another domain. Using this app, I can host my website at `mydomain.com` but also have a subdomain of my choosing (ie. `dev.mydomain.com`) point to my dev network hosted elsewhere behind a dynamic IP.
+I created this because the domain I own was being managed on the DigitalOcean nameservers and I didn't want to pay for a DDNS service for another domain. Using this app, I can host my website at `mydomain.com` but also have a subdomain of my choosing (ie. `dev.mydomain.com`) point to my dev network hosted elsewhere behind a dynamic IP.
 
 ### Installing
 
