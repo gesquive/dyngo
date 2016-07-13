@@ -42,7 +42,7 @@ and updates a DigitalOcean domain record when a change is detected`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if showVersion {
 			fmt.Println(displayVersion)
-			os.Exit(1)
+			os.Exit(0)
 		}
 
 		log.SetFormatter(&prefixed.TextFormatter{
