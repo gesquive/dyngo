@@ -13,7 +13,7 @@ import (
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-var version = "0.1.1"
+var version = "v0.1.3"
 var dirty = ""
 
 var cfgFile string
@@ -26,7 +26,7 @@ var verbose bool
 var debug bool
 
 func main() {
-	displayVersion = fmt.Sprintf("%s v%s%s",
+	displayVersion = fmt.Sprintf("%s %s%s",
 		filepath.Base(os.Args[0]),
 		version,
 		dirty)
@@ -162,6 +162,8 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Error opening config: ", err)
+		if !showVersion {
+			fmt.Println("Error opening config: ", err)
+		}
 	}
 }
