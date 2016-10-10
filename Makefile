@@ -41,36 +41,26 @@ FIND_DIST:=find * -type d -exec
 default: build
 
 help:
-	@echo 'Management commands for digitalocean-ddns:'
-	@echo
-	@echo 'Usage:'
-	@echo '    make build    Compile the project'
-	@echo '    make link     Symlink this project into the GOPATH'
-	@echo '    make test     Run tests on a compiled project'
-	@echo '    make install  Install binary'
-	@echo '    make depends  Download dependencies'
-	@echo '    make fmt      Reformat the source tree with gofmt'
-	@echo '    make clean    Clean the directory tree'
-	@echo '    make dist     Cross compile the full distribution'
-	@echo
+	@echo 'Management commands for $(BIN_NAME):'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build:
+build: ## Compile the project
 	@echo "building ${OWNER} ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
 	${GOCC} build -ldflags "-X main.version=${VERSION} -X main.dirty=${GIT_DIRTY}" -o ${BIN_NAME}
 
-install: build
+install: build ## Install binary
 	install -d ${DESTDIR}/usr/local/bin/
 	install -m 755 ./${BIN_NAME} ${DESTDIR}/usr/local/bin/${BIN_NAME}
 
-depends:
+depends: ## Download project dependencies
 	${GOCC} get -u github.com/Masterminds/glide
 	glide install
 
-test:
+test: ## Run golang tests
 	${GOCC} test ./...
 
-clean:
+clean: ## Clean the directory tree
 	${GOCC} clean
 	rm -f ./${BIN_NAME}.test
 	rm -f ./${BIN_NAME}
@@ -94,10 +84,10 @@ dist: build-all
 	$(FIND_DIST) zip -r ${PROJECT_NAME}-${VERSION}-{}.zip {} \; && \
 	cd ..
 
-fmt:
+fmt: ## Reformat the source tree with gofmt
 	find . -name '*.go' -not -path './.vendor/*' -exec gofmt -w=true {} ';'
 
-link:
+link: ## Symlink this project into the GOPATH
 	# relink into the go path
 	if [ ! $(INSTALL_PATH) -ef . ]; then \
 		mkdir -p `dirname $(INSTALL_PATH)`; \
