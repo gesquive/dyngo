@@ -4,7 +4,6 @@
 #  The kickoff point for all project management commands.
 #
 
-# TODO: Add cronjob install
 # TODO: Add service install
 GOCC := go
 
@@ -76,13 +75,14 @@ build-all: bootstrap-dist
 	-arch="amd64 386" \
 	-output="dist/{{.OS}}-{{.Arch}}/{{.Dir}}" .
 
-dist: build-all
-	cd dist && \
-	$(FIND_DIST) cp ../LICENSE {} \; && \
-	$(FIND_DIST) cp ../README.md {} \; && \
-	$(FIND_DIST) tar -zcf ${PROJECT_NAME}-${VERSION}-{}.tar.gz {} \; && \
-	$(FIND_DIST) zip -r ${PROJECT_NAME}-${VERSION}-{}.zip {} \; && \
-	cd ..
+dist: build-all ## Cross compile the full distribution
+	pkg/dist.sh "linux-386" "${PROJECT_NAME}-${VERSION}-linux-x32"
+	pkg/dist.sh "linux-amd64" "${PROJECT_NAME}-${VERSION}-linux-x64"
+	pkg/dist.sh "darwin-386" "${PROJECT_NAME}-${VERSION}-osx-x32"
+	pkg/dist.sh "darwin-amd64" "${PROJECT_NAME}-${VERSION}-osx-x64"
+	pkg/dist.sh "windows-386" "${PROJECT_NAME}-${VERSION}-windows-x32"
+	pkg/dist.sh "windows-amd64" "${PROJECT_NAME}-${VERSION}-windows-x64"
+
 
 fmt: ## Reformat the source tree with gofmt
 	find . -name '*.go' -not -path './.vendor/*' -exec gofmt -w=true {} ';'
