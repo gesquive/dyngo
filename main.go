@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -13,7 +12,7 @@ import (
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-var version = "v0.1.3"
+var version = "v0.1.4"
 var dirty = ""
 
 var cfgFile string
@@ -26,8 +25,7 @@ var verbose bool
 var debug bool
 
 func main() {
-	displayVersion = fmt.Sprintf("%s %s%s",
-		filepath.Base(os.Args[0]),
+	displayVersion = fmt.Sprintf("digitalocean-ddns %s%s",
 		version,
 		dirty)
 	Execute(displayVersion)
@@ -88,8 +86,11 @@ and updates a DigitalOcean domain record when a change is detected`,
 	},
 }
 
+// Execute is the starting point
 func Execute(version string) {
 	displayVersion = version
+	RootCmd.SetHelpTemplate(fmt.Sprintf("%s\nVersion:\n  github.com/gesquive/%s\n",
+		RootCmd.HelpTemplate(), displayVersion))
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
