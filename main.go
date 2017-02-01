@@ -155,7 +155,7 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	}
 
-	viper.SetConfigName("config.yml") // name of config file (without extension)
+	viper.SetConfigName("config") // name of config file (without extension)
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("$HOME/.config/digitalocean-ddns") // adding home directory as first search path
 	viper.AddConfigPath("/etc/digitalocean-ddns")
