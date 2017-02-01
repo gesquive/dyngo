@@ -47,11 +47,17 @@ and updates a DigitalOcean domain record when a change is detected`,
 			TimestampFormat: time.RFC3339,
 		})
 
+		if debug {
+			log.SetLevel(log.DebugLevel)
+		} else {
+			log.SetLevel(log.InfoLevel)
+		}
+
 		logPath = path.Dir(viper.GetString("log_path"))
 		logPath = fmt.Sprintf("%s/digitalocean-ddns.log", logPath)
 		if verbose {
 			log.SetOutput(os.Stdout)
-			log.Infof("config: would have logged too file=%s", logPath)
+			log.Debugf("config: log_file=%s", logPath)
 		} else {
 			logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 			if err != nil {
@@ -61,11 +67,6 @@ and updates a DigitalOcean domain record when a change is detected`,
 			log.SetOutput(logFile)
 		}
 
-		if debug {
-			log.SetLevel(log.DebugLevel)
-		} else {
-			log.SetLevel(log.InfoLevel)
-		}
 		log.Infof("config: file=%s", viper.ConfigFileUsed())
 		log.Debugf("config: domain=%s token=%s...",
 			viper.GetString("domain"),
