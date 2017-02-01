@@ -37,17 +37,17 @@ cp README.md "${DST}"
 cp pkg/config.example.yml "${DST}"
 
 if [[ "${DST}" != *"windows"* ]]; then
-    cp pkg/digitalocean-ddns.cron "${DST}"
+    cp -R pkg/services "${DST}"
     # echo "Compressing tarbell"
     pushd dist || exit
     rm -f "${DSTNAME}.tar.gz"
-	tar -zcf "${DSTNAME}.tar.gz" "${DSTNAME}"
+	tar --exclude=".*" --owner=0 --group=0 -zcf "${DSTNAME}.tar.gz" "${DSTNAME}"
     popd
 else
     # echo "Compressing zip file"
     pushd dist || exit
     rm -f "${DSTNAME}.zip"
-    zip -qr "${DSTNAME}.zip" "${DSTNAME}"
+    zip --exclude .\* -qr "${DSTNAME}.zip" "${DSTNAME}"
     popd
 fi
 
