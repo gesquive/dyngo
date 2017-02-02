@@ -45,8 +45,9 @@ func SyncDomain(token string, domainRecord string) {
 	client := doAuth(token)
 
 	// Next get a list of domain records
-	domain := getDomain(domainRecord)
-	records, err := getDomainRecords(client, domain)
+	domainName, recordName := getDomainRecordNames(domainRecord)
+	log.Debugf("sync: searching for domain=%s record=%s", domainName, recordName)
+	records, err := getDomainRecords(client, domainName)
 	if err != nil {
 		log.Errorf("sync: could not get list of domain records")
 		log.Errorf("sync: err=%s", err)
@@ -57,15 +58,17 @@ func SyncDomain(token string, domainRecord string) {
 	log.Debugf("sync: %d records found", len(records))
 	matchingIdx := -1
 	for idx, record := range records {
-		log.Debugf("sync: record=%s", record)
-		if record.Name == domainRecord {
-			matchingIdx = idx
-			break
+		if record.Type == "A" {
+			log.Debugf("sync: record=%s", record)
+			if record.Name == recordName {
+				matchingIdx = idx
+				break
+			}
 		}
 	}
 	if matchingIdx < 0 {
 		log.Infof("sync: no matching record found, will attempt to create")
-		_, err = createDomainRecord(client, domain, domainRecord, currentIP)
+		_, err = createDomainRecord(client, domainName, recordName, currentIP)
 		if err != nil {
 			log.Errorf("sync: could not create a new domain record")
 			log.Errorf("sync: err=%s", err)
@@ -87,24 +90,26 @@ func SyncDomain(token string, domainRecord string) {
 		Type: "A",
 		Data: currentIP,
 	}
-	_, _, err = client.Domains.EditRecord(domain, records[matchingIdx].ID,
+	_, _, err = client.Domains.EditRecord(domainName, records[matchingIdx].ID,
 		editRequest)
 	if err != nil {
 		log.Errorf("sync: could not update domain record domain=%s id=%d",
-			domain, records[matchingIdx].ID)
+			domainName, records[matchingIdx].ID)
 		log.Errorf("sync: err=%s", err)
 		return
 	}
 	log.Infof("sync: record successfully updated")
 }
 
-func getDomain(domainRecord string) (domain string) {
+func getDomainRecordNames(domainRecord string) (domain string, record string) {
 	domainParts := strings.Split(domainRecord, ".")
 	if len(domainParts) > 2 {
 		// sub.domain.net => domain.net
 		domain = strings.Join(domainParts[len(domainParts)-2:], ".")
+		record = strings.Join(domainParts[:len(domainParts)-2], ".")
 	} else {
 		domain = domainRecord
+		record = "@"
 	}
 	return
 }
@@ -181,13 +186,13 @@ func getDomainRecords(client *godo.Client, domain string) ([]godo.DomainRecord, 
 	return records, err
 }
 
-func createDomainRecord(client *godo.Client, domain string, domainRecord string, ipAddress string) (*godo.DomainRecord, error) {
+func createDomainRecord(client *godo.Client, domainName string, recordName string, ipAddress string) (*godo.DomainRecord, error) {
 	createRequest := &godo.DomainRecordEditRequest{
 		Type: "A",
-		Name: domainRecord,
+		Name: recordName,
 		Data: ipAddress,
 	}
 
-	record, _, err := client.Domains.CreateRecord(domain, createRequest)
+	record, _, err := client.Domains.CreateRecord(domainName, createRequest)
 	return record, err
 }
