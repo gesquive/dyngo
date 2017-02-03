@@ -45,7 +45,7 @@ func SyncDomain(token string, domainRecord string) {
 	client := doAuth(token)
 
 	// Next get a list of domain records
-	domainName, recordName := getDomainRecordNames(domainRecord)
+	domainName, recordName := splitDomainRecord(domainRecord)
 	log.Debugf("sync: searching for domain=%s record=%s", domainName, recordName)
 	records, err := getDomainRecords(client, domainName)
 	if err != nil {
@@ -101,7 +101,7 @@ func SyncDomain(token string, domainRecord string) {
 	log.Infof("sync: record successfully updated")
 }
 
-func getDomainRecordNames(domainRecord string) (domain string, record string) {
+func splitDomainRecord(domainRecord string) (domain string, record string) {
 	domainParts := strings.Split(domainRecord, ".")
 	if len(domainParts) > 2 {
 		// sub.domain.net => domain.net
