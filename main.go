@@ -37,54 +37,7 @@ var RootCmd = &cobra.Command{
 	Short: "Use digitalocean as your DDNS service",
 	Long: `A service application that watches your external IP for changes
 and updates a DigitalOcean domain record when a change is detected`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if showVersion {
-			fmt.Println(displayVersion)
-			os.Exit(0)
-		}
-
-		log.SetFormatter(&prefixed.TextFormatter{
-			TimestampFormat: time.RFC3339,
-		})
-
-		if debug {
-			log.SetLevel(log.DebugLevel)
-		} else {
-			log.SetLevel(log.InfoLevel)
-		}
-
-		logPath = path.Dir(viper.GetString("log_path"))
-		logPath = fmt.Sprintf("%s/digitalocean-ddns.log", logPath)
-		if verbose {
-			log.SetOutput(os.Stdout)
-			log.Debugf("config: log_file=%s", logPath)
-		} else {
-			logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-			if err != nil {
-				log.Fatalf("error opening log file=%v", err)
-			}
-			defer logFile.Close()
-			log.SetOutput(logFile)
-		}
-
-		log.Infof("config: file=%s", viper.ConfigFileUsed())
-		log.Debugf("config: domain=%s token=%s...",
-			viper.GetString("domain"),
-			viper.GetString("token")[:5])
-
-		if singleRun {
-			RunSync(viper.GetString("token"), viper.GetString("domain"))
-		} else {
-			interval, err := time.ParseDuration(viper.GetString("sync_interval"))
-			if err != nil {
-				log.Errorf("config: the given sync value is invalid sync_interval=%s err=%s",
-					viper.GetString("sync_interval"), err)
-				os.Exit(1)
-			}
-			RunService(viper.GetString("token"), viper.GetString("domain"),
-				interval)
-		}
-	},
+	Run: run,
 }
 
 // Execute is the starting point
@@ -103,8 +56,8 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"Path to a specific config file (default \"./config.yaml\")")
-	RootCmd.PersistentFlags().String("log-path", "",
-		"Path to log files (default \"/var/log/\")")
+	RootCmd.PersistentFlags().String("log-file", "",
+		"Path to log file (default \"/var/log/digitalocean-ddns.log\")")
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit")
@@ -129,15 +82,15 @@ func init() {
 	viper.BindEnv("token")
 	viper.BindEnv("domain")
 	viper.BindEnv("sync-interval")
-	viper.BindEnv("log-path")
+	viper.BindEnv("log-file")
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
 	viper.BindPFlag("sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
 	viper.BindPFlag("run_once", RootCmd.PersistentFlags().Lookup("run-once"))
-	viper.BindPFlag("log_path", RootCmd.PersistentFlags().Lookup("log-path"))
+	viper.BindPFlag("log_file", RootCmd.PersistentFlags().Lookup("log-file"))
 
-	viper.SetDefault("log_path", "/var/log/")
+	viper.SetDefault("log_file", "/var/log/digitalocean-ddns.log")
 	viper.SetDefault("sync_interval", "60m")
 	viper.SetDefault("url_list", []string{
 		"http://icanhazip.com",
@@ -168,4 +121,62 @@ func initConfig() {
 			fmt.Println("Error opening config: ", err)
 		}
 	}
+}
+
+func run(cmd *cobra.Command, args []string) {
+	if showVersion {
+		fmt.Println(displayVersion)
+		os.Exit(0)
+	}
+
+	log.SetFormatter(&prefixed.TextFormatter{
+		TimestampFormat: time.RFC3339,
+	})
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+
+	logFilePath := getLogFilePath(viper.GetString("log_file"))
+	log.Debugf("config: log_file=%s", logFilePath)
+	if verbose {
+		log.SetOutput(os.Stdout)
+	} else {
+		logFile, err := os.OpenFile(logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening log file=%v", err)
+		}
+		defer logFile.Close()
+		log.SetOutput(logFile)
+	}
+
+	log.Infof("config: file=%s", viper.ConfigFileUsed())
+	log.Debugf("config: domain=%s token=%s...",
+		viper.GetString("domain"),
+		viper.GetString("token")[:5])
+
+	if singleRun {
+		RunSync(viper.GetString("token"), viper.GetString("domain"))
+	} else {
+		interval, err := time.ParseDuration(viper.GetString("sync_interval"))
+		if err != nil {
+			log.Errorf("config: the given sync value is invalid sync_interval=%s err=%s",
+				viper.GetString("sync_interval"), err)
+			os.Exit(1)
+		}
+		RunService(viper.GetString("token"), viper.GetString("domain"),
+			interval)
+	}
+}
+
+func getLogFilePath(defaultPath string) (logPath string) {
+	fi, err := os.Stat(defaultPath)
+	if err == nil && fi.IsDir() {
+		logPath = path.Join(defaultPath, "digitalocean-ddns.log")
+	} else {
+		logPath = defaultPath
+	}
+	return
 }

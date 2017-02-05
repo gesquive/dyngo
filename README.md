@@ -57,7 +57,7 @@ Usage:
 Flags:
       --config string          Path to a specific config file (default "./config.yaml")
   -d, --domain string          The DigitalOcean domain record to update
-      --log-path string        Path to log files (default "/var/log/")
+      --log-file string        Path to log file (default "/var/log/digitalocean-ddns.log")
   -o, --run-once               Only run once and exit.
   -i, --sync-interval string   The duration between DNS updates (default "60m")
   -t, --token string           The DigitalOcean API token to authenticate with
