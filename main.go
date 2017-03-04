@@ -20,7 +20,6 @@ var logPath string
 
 var displayVersion string
 var showVersion bool
-var singleRun bool
 var verbose bool
 var debug bool
 
@@ -61,8 +60,8 @@ func init() {
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit")
-	RootCmd.PersistentFlags().BoolVarP(&singleRun, "run-once", "o", false,
-		"Only run once and exit.")
+	RootCmd.PersistentFlags().BoolP("run-once", "o", false,
+		"Only run once and exit")
 
 	RootCmd.PersistentFlags().StringP("token", "t", "",
 		"The DigitalOcean API token to authenticate with")
@@ -82,6 +81,7 @@ func init() {
 	viper.BindEnv("token")
 	viper.BindEnv("domain")
 	viper.BindEnv("sync-interval")
+	viper.BindEnv("run-once")
 	viper.BindEnv("log-file")
 
 	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
@@ -157,7 +157,7 @@ func run(cmd *cobra.Command, args []string) {
 		viper.GetString("domain"),
 		viper.GetString("token")[:5])
 
-	if singleRun {
+	if viper.GetBool("run_once") {
 		RunSync(viper.GetString("token"), viper.GetString("domain"))
 	} else {
 		interval, err := time.ParseDuration(viper.GetString("sync_interval"))
