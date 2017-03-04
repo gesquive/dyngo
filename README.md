@@ -39,7 +39,7 @@ The application looks for a configuration file at the following locations in ord
  - `~/.config/digitalocean-ddns/config.yml`
  - `/etc/digitalocean-ddns/config.yml`
 
-Copy `install/config.example.yml` to one of these locations and populate the values with your own. Since the config contains a writable API token, make sure to set permissions on the config file appropriately so others cannot read it. A good suggestion is `chmod 600 /path/to/config.yml`.
+Copy `config.example.yml` to one of these locations and populate the values with your own. Since the config contains a writable API token, make sure to set permissions on the config file appropriately so others cannot read it. A good suggestion is `chmod 600 /path/to/config.yml`.
 
 If you are planning to run this app as a service/cronjob, it is recommended that you place the config in `/etc/digitalocean-ddns/config.yml`. Otherwise, if running from the command line, place the config in `~/.config/digitalocean-ddns/config.yml` and make sure to set `run_once: true`.
 
@@ -75,7 +75,7 @@ Hidden Flags:
 
 
 ### Cronjob
-To run as a cronjob on an Ubuntu system create a cronjob entry under the user the app is run with. If running as root, you can copy `install/digitalocean-ddns.cron` to `/etc/cron.d/digitalocean-ddns` or copy the following into you preferred crontab:
+To run as a cronjob on an Ubuntu system create a cronjob entry under the user the app is run with. If running as root, you can copy `services/digitalocean-ddns.cron` to `/etc/cron.d/digitalocean-ddns` or copy the following into you preferred crontab:
 ```shell
   0  *  *  *  * /usr/local/bin/digitalocean-ddns --run-once
 ```
@@ -84,6 +84,8 @@ Add any flags/env vars needed to make sure the job runs as intended. If not usin
 
 ### Service
 By default, the process is setup to run as a service. Feel free to use upstart, init, runit or any other service manager to run the `digitalocean-ddns` executable.
+
+Example systemd & upstart scripts can be found in the `services` directory.
 
 ## Documentation
 
