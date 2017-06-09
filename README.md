@@ -1,4 +1,7 @@
 # digitalocean-ddns
+[![Travis CI](https://img.shields.io/travis/gesquive/digitalocean-ddns/master.svg?style=flat-square)](https://travis-ci.org/gesquive/digitalocean-ddns)
+[![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/digitalocean-ddns/blob/master/LICENSE)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/digitalocean-ddns)
 
 Sync a DigitalOcean Domain Record entry with your public IP.
 
@@ -8,7 +11,7 @@ I created this because the domain I own was being managed on the DigitalOcean na
 ## Installing
 
 ### Compile
-This project requires go1.6 to compile. Just run `go get -u github.com/gesquive/digitalocean-ddns` and the executable should be built for you automatically in your `$GOPATH`.
+This project requires go1.6+ to compile. Just run `go get -u github.com/gesquive/digitalocean-ddns` and the executable should be built for you automatically in your `$GOPATH`.
 
 Optionally you can run `make install` to build and copy the executable to `/usr/local/bin/` with correct permissions.
 
@@ -98,8 +101,3 @@ This package is made available under an MIT-style license. See LICENSE.
 ## Contributing
 
 PRs are always welcome!
-
-
-<!-- TODO: Include some default upstart/init scripts -->
-<!-- TODO: Include a logrotate script -->
-<!-- TODO: Create a detailed service install script -->
