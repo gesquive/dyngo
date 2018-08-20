@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"

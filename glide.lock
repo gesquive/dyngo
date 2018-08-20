@@ -1,14 +1,12 @@
-hash: 3ef752fbd24722f3c776d73367e60acc96a34fa2c9e3db75045e9fb334819655
-updated: 2017-06-10T00:13:43.604668377-05:00
+hash: 3ae3fa72bb66a046f4d92d6c6c76447ea917bcbc330e21cc5a70a33b116fd358
+updated: 2018-08-20T09:03:44.06231778-05:00
 imports:
-- name: github.com/BurntSushi/toml
-  version: b26d9c308763d68093482582cea63d69be07a0f0
 - name: github.com/digitalocean/godo
-  version: cacf7fa36edebacb47956d2c325c91be0e142f40
+  version: 51f18c0e42941703dc13d15bc0ad69aef6a49830
 - name: github.com/fsnotify/fsnotify
-  version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/golang/protobuf
-  version: 5a0f697c9ed9d68fef0116532c6e05cfeae00e55
+  version: aa810b61a9c79d51363740d207bb46cf8e620ed5
   subpackages:
   - proto
 - name: github.com/google/go-querystring
@@ -16,10 +14,11 @@ imports:
   subpackages:
   - query
 - name: github.com/hashicorp/hcl
-  version: 392dba7d905ed5d04a5794ba89f558b27e2ba1ca
+  version: ef8a98b0bbce4a65b5aa4c368430a80ddc533168
   subpackages:
   - hcl/ast
   - hcl/parser
+  - hcl/printer
   - hcl/scanner
   - hcl/strconv
   - hcl/token
@@ -29,7 +28,7 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/magiconair/properties
-  version: 51463bfca2576e06c62a8504b5c0f06d61312647
+  version: c2353362d570a7bfa228149c62842019201cfb71
 - name: github.com/mattn/go-colorable
   version: 5411d3eea5978e6cdc258b30de592b60df6aba96
 - name: github.com/mattn/go-isatty
@@ -37,37 +36,54 @@ imports:
 - name: github.com/mgutz/ansi
   version: 9520e82c474b0a04dd04f8a40959027271bab992
 - name: github.com/mitchellh/mapstructure
-  version: d0303fe809921458f417bcf828397a65db30a7e4
-- name: github.com/Sirupsen/logrus
-  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+  version: f15292f7a699fcc1a38a80977f80a046874ba8ac
+- name: github.com/pelletier/go-toml
+  version: c2dbbc24a97911339e01bda0b8cabdbd8f13b602
+- name: github.com/sirupsen/logrus
+  version: 3e01752db0189b9157070a0e1668a620f9a85da2
+- name: github.com/spf13/afero
+  version: 787d034dfe70e44075ccc060d346146ef53270ad
+  subpackages:
+  - mem
 - name: github.com/spf13/cast
-  version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
+  version: 8965335b8c7107321228e3e3702cab9832751bac
 - name: github.com/spf13/cobra
-  version: 1238ba19d24b0b9ceee2094e1cb31947d45c3e86
+  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
 - name: github.com/spf13/jwalterweatherman
-  version: 0efa5202c04663c757d84f90f5219c1250baf94f
+  version: 7c0cea34c8ece3fbeb2b27ab9b59511d360fb394
 - name: github.com/spf13/pflag
-  version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
+  version: 3ebe029320b2676d667ae88da602a5f854788a8a
 - name: github.com/spf13/viper
-  version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+  version: 907c19d40d9a6c9bb55f040ff4ae45271a4754b9
 - name: github.com/tent/http-link-go
   version: ac974c61c2f990f4115b119354b5e0b47550e888
 - name: github.com/x-cray/logrus-prefixed-formatter
-  version: 19bfe61502ba35a3235b4970c10b9366a0aa9b61
+  version: bb2702d423886830dee131692131d35648c382e2
+- name: golang.org/x/crypto
+  version: c126467f60eb25f8f27e5a981f32a87e3965053f
+  subpackages:
+  - ssh/terminal
 - name: golang.org/x/net
-  version: 1a68b1313cf4ad7778376e82641197b60c02f65c
+  version: aaf60122140d3fcf75376d319f0554393160eb50
   subpackages:
   - context
+  - context/ctxhttp
 - name: golang.org/x/oauth2
-  version: 65a8d08c6292395d47053be10b3c5e91960def76
+  version: 3d292e4d0cdc3a0113e6d207bb137145ef1de42f
   subpackages:
   - internal
 - name: golang.org/x/sys
-  version: 0b25a408a50076fbbcae6b7ac0ea5fbb0b085e79
+  version: e072cadbbdc8dd3d3ffa82b8b4b9304c261d9311
   subpackages:
   - unix
+  - windows
+- name: golang.org/x/text
+  version: 0605a8320aceb4207a5fb3521281e17ec2075476
+  subpackages:
+  - transform
+  - unicode/norm
 - name: google.golang.org/appengine
-  version: a2f4131514e563cedfdb6e7d267df9ad48591e93
+  version: 4216e58b9158e5f1c906f1aca75162a46a2ec88a
   subpackages:
   - internal
   - internal/base
@@ -77,5 +93,5 @@ imports:
   - internal/urlfetch
   - urlfetch
 - name: gopkg.in/yaml.v2
-  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []
