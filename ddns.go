@@ -9,8 +9,10 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"context"
+
 	"github.com/digitalocean/godo"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
@@ -42,12 +44,12 @@ func SyncDomain(token string, domainRecord string) {
 	log.Infof("sync: got public IP address=%s", currentIP)
 
 	// Second, authenticate with DigitalOcean
-	client := doAuth(token)
+	do := NewDoAuth(token)
 
 	// Next get a list of domain records
 	domainName, recordName := splitDomainRecord(domainRecord)
 	log.Debugf("sync: searching for domain=%s record=%s", domainName, recordName)
-	records, err := getDomainRecords(client, domainName)
+	records, err := getDomainRecords(&do, domainName)
 	if err != nil {
 		log.Errorf("sync: could not get list of domain records")
 		log.Errorf("sync: err=%s", err)
@@ -68,7 +70,7 @@ func SyncDomain(token string, domainRecord string) {
 	}
 	if matchingIdx < 0 {
 		log.Infof("sync: no matching record found, will attempt to create")
-		_, err = createDomainRecord(client, domainName, recordName, currentIP)
+		_, err = createDomainRecord(&do, domainName, recordName, currentIP)
 		if err != nil {
 			log.Errorf("sync: could not create a new domain record")
 			log.Errorf("sync: err=%s", err)
@@ -90,8 +92,7 @@ func SyncDomain(token string, domainRecord string) {
 		Type: "A",
 		Data: currentIP,
 	}
-	_, _, err = client.Domains.EditRecord(domainName, records[matchingIdx].ID,
-		editRequest)
+	_, _, err = do.Client.Domains.EditRecord(do.Ctx, domainName, records[matchingIdx].ID, editRequest)
 	if err != nil {
 		log.Errorf("sync: could not update domain record domain=%s id=%d",
 			domainName, records[matchingIdx].ID)
@@ -166,33 +167,42 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
-func doAuth(apiToken string) (client *godo.Client) {
+type DoAuth struct {
+	Client *godo.Client
+	Ctx    context.Context
+}
+
+func NewDoAuth(apiToken string) DoAuth {
 	token := &TokenSource{
 		AccessToken: apiToken,
 	}
 
 	oauthClient := oauth2.NewClient(oauth2.NoContext, token)
-	client = godo.NewClient(oauthClient)
-	return
+
+	var auth = DoAuth{
+		Client: godo.NewClient(oauthClient),
+		Ctx:    context.TODO(),
+	}
+	return auth
 }
 
-func getDomainRecords(client *godo.Client, domain string) ([]godo.DomainRecord, error) {
+func getDomainRecords(do *DoAuth, domain string) ([]godo.DomainRecord, error) {
 	opt := &godo.ListOptions{
 		Page:    1,
 		PerPage: 1000,
 	}
 
-	records, _, err := client.Domains.Records(domain, opt)
+	records, _, err := do.Client.Domains.Records(do.Ctx, domain, opt)
 	return records, err
 }
 
-func createDomainRecord(client *godo.Client, domainName string, recordName string, ipAddress string) (*godo.DomainRecord, error) {
+func createDomainRecord(do *DoAuth, domainName string, recordName string, ipAddress string) (*godo.DomainRecord, error) {
 	createRequest := &godo.DomainRecordEditRequest{
 		Type: "A",
 		Name: recordName,
 		Data: ipAddress,
 	}
 
-	record, _, err := client.Domains.CreateRecord(domainName, createRequest)
+	record, _, err := do.Client.Domains.CreateRecord(do.Ctx, domainName, createRequest)
 	return record, err
 }
