@@ -117,6 +117,9 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			return
+		}
 		if !showVersion {
 			fmt.Println("Error opening config: ", err)
 		}
@@ -153,6 +156,16 @@ func run(cmd *cobra.Command, args []string) {
 	}
 
 	log.Infof("config: file=%s", viper.ConfigFileUsed())
+	domain := viper.GetString("domain")
+	if len(domain) == 0 {
+		log.Error("No domain specified")
+		os.Exit(2)
+	}
+	token := viper.GetString("token")
+	if len(token) == 0 {
+		log.Error("No DO token found")
+		os.Exit(2)
+	}
 	log.Debugf("config: domain=%s token=%s...",
 		viper.GetString("domain"),
 		viper.GetString("token")[:5])
