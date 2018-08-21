@@ -11,20 +11,20 @@ I created this because the domain I own was being managed on the DigitalOcean na
 ## Installing
 
 ### Compile
-This project requires go1.6+ to compile. Just run `go get -u github.com/gesquive/digitalocean-ddns` and the executable should be built for you automatically in your `$GOPATH`.
+This project has only been tested with go1.11+. To compile just run `go get -u github.com/gesquive/digitalocean-ddns` and the executable should be built for you automatically in your `$GOPATH`.
 
 Optionally you can run `make install` to build and copy the executable to `/usr/local/bin/` with correct permissions.
 
 ### Download
-Alternately, you can download the latest release for your platform from [github](https://github.com/gesquive/digitalocean-ddns/releases).
+You could also download the latest release for your platform from [github](https://github.com/gesquive/digitalocean-ddns/releases).
 
 Once you have an executable, make sure to copy it somewhere on your path like `/usr/local/bin` or `C:/Program Files/`.
 If on a \*nix/mac system, make sure to run `chmod +x /path/to/digitalocean-ddns`.
 
 ## Configuration
 
-Before configuring, make sure that the domain exists in your DigitalOcean account. DigitalOcean provides excellent [documentation](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-host-name-with-digitalocean) on this subject.
-Also, when generating your DigitalOcean [personal access token](https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token), make sure the token has read/write permissions.
+Before configuring, make sure that the domain exists in your DigitalOcean account. DigitalOcean provides excellent [documentation](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) on this subject.
+Also, when generating your DigitalOcean [personal access token](https://www.digitalocean.com/docs/api/create-personal-access-token/), make sure the token has read/write permissions.
 
 
 ### Precedence Order
@@ -47,7 +47,7 @@ Copy `config.example.yml` to one of these locations and populate the values with
 If you are planning to run this app as a service/cronjob, it is recommended that you place the config in `/etc/digitalocean-ddns/config.yml`. Otherwise, if running from the command line, place the config in `~/.config/digitalocean-ddns/config.yml` and make sure to set `run_once: true`.
 
 ### Environment Variables
-Optionally, instead of using a config file you can specify config entries as environment variables. Use the prefix "DODDNS_" in front of the uppercased variable name. For example, the config variable `sync-interval` would be the environment variable `DODDNS_SYNC_INTERVAL`.
+Optionally, instead of using a config file you can specify config entries as environment variables. Use the prefix `DODDNS_` in front of the uppercased variable name. For example, the config variable `sync-interval` would be the environment variable `DODDNS_SYNC_INTERVAL`.
 
 ## Usage
 
@@ -60,15 +60,15 @@ Usage:
 Flags:
       --config string          Path to a specific config file (default "./config.yaml")
   -d, --domain string          The DigitalOcean domain record to update
-      --log-file string        Path to log file (default "/var/log/digitalocean-ddns.log")
-  -o, --run-once               Only run once and exit.
+  -h, --help                   help for digitalocean-ddns
+      --log-file string        Path to log file (default "-")
+  -o, --run-once               Only run once and exit
   -i, --sync-interval string   The duration between DNS updates (default "60m")
   -t, --token string           The DigitalOcean API token to authenticate with
-  -v, --verbose                Print logs to stdout instead of file
       --version                Display the version number and exit
 ```
 
-It is helpful to use the `--run-once` combined with the `--verbose` flags when first setting up to find any misconfigurations.
+It is helpful to use the `--run-once` when first setting up to find any misconfigurations.
 
 Optionally, a hidden debug flag is available in case you need additional output.
 ```console
@@ -86,7 +86,7 @@ To run as a cronjob on an Ubuntu system create a cronjob entry under the user th
 Add any flags/env vars needed to make sure the job runs as intended. If not using arguments, then make sure the config file path is specified with a flag or can be found at one of the expected locations.
 
 ### Service
-By default, the process is setup to run as a service. Feel free to use upstart, init, runit or any other service manager to run the `digitalocean-ddns` executable.
+By default, the process is setup to run as a service. Feel free to use upstart, systemd, runit or any other service manager to run the `digitalocean-ddns` executable.
 
 Example systemd & upstart scripts can be found in the `services` directory.
 

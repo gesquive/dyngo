@@ -92,7 +92,7 @@ package-dist: gop
 	--os="linux darwin windows" \
 	--arch="amd64 386" \
 	--archive="tar.gz" \
-	--files="LICENSE README.md pkg" \
+	--files="LICENSE README.md pkg/config.example.yml pkg/services" \
 	--input="dist/{{.OS}}-{{.Arch}}/{{.Dir}}" \
 	--output="dist/{{.Dir}}-${VERSION}-{{.OS}}-{{.Arch}}.{{.Archive}}" .
 
