@@ -20,7 +20,6 @@ var logPath string
 
 var displayVersion string
 var showVersion bool
-var verbose bool
 var debug bool
 
 func main() {
@@ -36,7 +35,8 @@ var RootCmd = &cobra.Command{
 	Short: "Use digitalocean as your DDNS service",
 	Long: `A service application that watches your external IP for changes
 and updates a DigitalOcean domain record when a change is detected`,
-	Run: run,
+	PersistentPreRun: preRun,
+	Run:              run,
 }
 
 // Execute is the starting point
@@ -56,7 +56,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
 		"Path to a specific config file (default \"./config.yaml\")")
 	RootCmd.PersistentFlags().String("log-file", "",
-		"Path to log file (default \"/var/log/digitalocean-ddns.log\")")
+		"Path to log file (default \"-\")")
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit")
@@ -69,8 +69,6 @@ func init() {
 		"The DigitalOcean domain record to update")
 	RootCmd.PersistentFlags().StringP("sync-interval", "i", "60m",
 		"The duration between DNS updates")
-	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false,
-		"Print logs to stdout instead of file")
 
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "D", false,
 		"Include debug statements in log output")
@@ -90,7 +88,7 @@ func init() {
 	viper.BindPFlag("run_once", RootCmd.PersistentFlags().Lookup("run-once"))
 	viper.BindPFlag("log_file", RootCmd.PersistentFlags().Lookup("log-file"))
 
-	viper.SetDefault("log_file", "/var/log/digitalocean-ddns.log")
+	viper.SetDefault("log_file", "-")
 	viper.SetDefault("sync_interval", "60m")
 	viper.SetDefault("url_list", []string{
 		"http://icanhazip.com",
@@ -126,7 +124,7 @@ func initConfig() {
 	}
 }
 
-func run(cmd *cobra.Command, args []string) {
+func preRun(cmd *cobra.Command, args []string) {
 	if showVersion {
 		fmt.Println(displayVersion)
 		os.Exit(0)
@@ -142,9 +140,13 @@ func run(cmd *cobra.Command, args []string) {
 		log.SetLevel(log.InfoLevel)
 	}
 
+	log.Debug("Running with debug turned on")
+}
+
+func run(cmd *cobra.Command, args []string) {
 	logFilePath := getLogFilePath(viper.GetString("log_file"))
 	log.Debugf("config: log_file=%s", logFilePath)
-	if verbose {
+	if logFilePath == "" || logFilePath == "-" {
 		log.SetOutput(os.Stdout)
 	} else {
 		logFile, err := os.OpenFile(logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
