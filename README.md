@@ -1,7 +1,7 @@
 # dyngo
-[![Travis CI](https://img.shields.io/travis/gesquive/dyngo/master.svg?style=flat-square)](https://travis-ci.org/gesquive/dyngo)
-[![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/dyngo)
+[![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/drone/build/gesquive/dyngo.svg?style=flat-square)](https://cloud.drone.io/gesquive/dyngo)
 
 Sync a DigitalOcean Domain Record entry with your public IP.
 
