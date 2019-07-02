@@ -1,0 +1,28 @@
+# More info: https://github.com/gesquive/dyngo
+# copy or hard link to
+#   Ubuntu: /etc/init/dyngo.conf
+
+description "digitalocean ddns service"
+
+start on (started network)
+stop on runlevel [!2345]
+
+respawn
+respawn limit 99 5
+
+script
+
+    export HOME="/srv"
+    echo $$ > /var/run/dyngo.pid
+    exec /usr/local/bin/dyngo
+
+end script
+
+pre-start script
+    echo "[`date '+%FT%TZ'`] starting service" >> /var/log/dyngo.log
+end script
+
+pre-stop script
+    rm /var/run/dyngo.pid
+    echo "[`date '+%FT%TZ'`] service stopping" >> /var/log/dyngo.log
+end script

@@ -23,7 +23,7 @@ var showVersion bool
 var debug bool
 
 func main() {
-	displayVersion = fmt.Sprintf("digitalocean-ddns %s%s",
+	displayVersion = fmt.Sprintf("dyngo %s%s",
 		version,
 		dirty)
 	Execute(displayVersion)
@@ -31,7 +31,7 @@ func main() {
 
 // RootCmd handles all of our arguments/options
 var RootCmd = &cobra.Command{
-	Use:   "digitalocean-ddns",
+	Use:   "dyngo",
 	Short: "Use digitalocean as your DDNS service",
 	Long: `A service application that watches your external IP for changes
 and updates a DigitalOcean domain record when a change is detected`,
@@ -109,8 +109,8 @@ func initConfig() {
 
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME/.config/digitalocean-ddns") // adding home directory as first search path
-	viper.AddConfigPath("/etc/digitalocean-ddns")
+	viper.AddConfigPath("$HOME/.config/dyngo") // adding home directory as first search path
+	viper.AddConfigPath("/etc/dyngo")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
@@ -189,7 +189,7 @@ func run(cmd *cobra.Command, args []string) {
 func getLogFilePath(defaultPath string) (logPath string) {
 	fi, err := os.Stat(defaultPath)
 	if err == nil && fi.IsDir() {
-		logPath = path.Join(defaultPath, "digitalocean-ddns.log")
+		logPath = path.Join(defaultPath, "dyngo.log")
 	} else {
 		logPath = defaultPath
 	}

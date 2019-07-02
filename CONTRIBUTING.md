@@ -8,7 +8,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/gesquive/digitalocean-ddns/issues.
+Report bugs at https://github.com/gesquive/dyngo/issues.
 
 If you are reporting a bug, please include:
 
@@ -28,13 +28,13 @@ is open to whoever wants to implement it.
 
 ### Write Documentation
 
-digitalocean-ddns could always use more documentation, whether as part of the
-official digitalocean-ddns docs, in docstrings, or even on the web in blog posts,
+dyngo could always use more documentation, whether as part of the
+official dyngo docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/gesquive/digitalocean-ddns/issues.
+The best way to send feedback is to file an issue at https://github.com/gesquive/dyngo/issues.
 
 If you are proposing a feature:
 
@@ -45,12 +45,12 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `digitalocean-ddns` for local development.
+Ready to contribute? Here's how to set up `dyngo` for local development.
 
-1. Fork the `digitalocean-ddns` repo on GitHub.
+1. Fork the `dyngo` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/digitalocean-ddns.git
+    $ git clone git@github.com:your_name_here/dyngo.git
 
 3. Create a branch for local development::
 

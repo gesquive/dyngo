@@ -1,7 +1,7 @@
-# digitalocean-ddns
-[![Travis CI](https://img.shields.io/travis/gesquive/digitalocean-ddns/master.svg?style=flat-square)](https://travis-ci.org/gesquive/digitalocean-ddns)
-[![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/digitalocean-ddns/blob/master/LICENSE)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/digitalocean-ddns)
+# dyngo
+[![Travis CI](https://img.shields.io/travis/gesquive/dyngo/master.svg?style=flat-square)](https://travis-ci.org/gesquive/dyngo)
+[![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/dyngo)
 
 Sync a DigitalOcean Domain Record entry with your public IP.
 
@@ -11,15 +11,15 @@ I created this because the domain I own was being managed on the DigitalOcean na
 ## Installing
 
 ### Compile
-This project has only been tested with go1.11+. To compile just run `go get -u github.com/gesquive/digitalocean-ddns` and the executable should be built for you automatically in your `$GOPATH`.
+This project has only been tested with go1.11+. To compile just run `go get -u github.com/gesquive/dyngo` and the executable should be built for you automatically in your `$GOPATH`.
 
 Optionally you can run `make install` to build and copy the executable to `/usr/local/bin/` with correct permissions.
 
 ### Download
-You could also download the latest release for your platform from [github](https://github.com/gesquive/digitalocean-ddns/releases).
+You could also download the latest release for your platform from [github](https://github.com/gesquive/dyngo/releases).
 
 Once you have an executable, make sure to copy it somewhere on your path like `/usr/local/bin` or `C:/Program Files/`.
-If on a \*nix/mac system, make sure to run `chmod +x /path/to/digitalocean-ddns`.
+If on a \*nix/mac system, make sure to run `chmod +x /path/to/dyngo`.
 
 ## Configuration
 
@@ -39,12 +39,12 @@ So any variable specified on the command line would override values set in the e
 ### Config File
 The application looks for a configuration file at the following locations in order:
  - `./config.yml`
- - `~/.config/digitalocean-ddns/config.yml`
- - `/etc/digitalocean-ddns/config.yml`
+ - `~/.config/dyngo/config.yml`
+ - `/etc/dyngo/config.yml`
 
 Copy `config.example.yml` to one of these locations and populate the values with your own. Since the config contains a writable API token, make sure to set permissions on the config file appropriately so others cannot read it. A good suggestion is `chmod 600 /path/to/config.yml`.
 
-If you are planning to run this app as a service/cronjob, it is recommended that you place the config in `/etc/digitalocean-ddns/config.yml`. Otherwise, if running from the command line, place the config in `~/.config/digitalocean-ddns/config.yml` and make sure to set `run_once: true`.
+If you are planning to run this app as a service/cronjob, it is recommended that you place the config in `/etc/dyngo/config.yml`. Otherwise, if running from the command line, place the config in `~/.config/dyngo/config.yml` and make sure to set `run_once: true`.
 
 ### Environment Variables
 Optionally, instead of using a config file you can specify config entries as environment variables. Use the prefix `DODDNS_` in front of the uppercased variable name. For example, the config variable `sync-interval` would be the environment variable `DODDNS_SYNC_INTERVAL`.
@@ -55,12 +55,12 @@ Optionally, instead of using a config file you can specify config entries as env
 A service application that watches your external IP for changes and updates a DigitalOcean domain record when a change is detected
 
 Usage:
-  digitalocean-ddns [flags]
+  dyngo [flags]
 
 Flags:
       --config string          Path to a specific config file (default "./config.yaml")
   -d, --domain string          The DigitalOcean domain record to update
-  -h, --help                   help for digitalocean-ddns
+  -h, --help                   help for dyngo
       --log-file string        Path to log file (default "-")
   -o, --run-once               Only run once and exit
   -i, --sync-interval string   The duration between DNS updates (default "60m")
@@ -78,21 +78,21 @@ Hidden Flags:
 
 
 ### Cronjob
-To run as a cronjob on an Ubuntu system create a cronjob entry under the user the app is run with. If running as root, you can copy `services/digitalocean-ddns.cron` to `/etc/cron.d/digitalocean-ddns` or copy the following into you preferred crontab:
+To run as a cronjob on an Ubuntu system create a cronjob entry under the user the app is run with. If running as root, you can copy `services/dyngo.cron` to `/etc/cron.d/dyngo` or copy the following into you preferred crontab:
 ```shell
-  0  *  *  *  * /usr/local/bin/digitalocean-ddns --run-once
+  0  *  *  *  * /usr/local/bin/dyngo --run-once
 ```
 
 Add any flags/env vars needed to make sure the job runs as intended. If not using arguments, then make sure the config file path is specified with a flag or can be found at one of the expected locations.
 
 ### Service
-By default, the process is setup to run as a service. Feel free to use upstart, systemd, runit or any other service manager to run the `digitalocean-ddns` executable.
+By default, the process is setup to run as a service. Feel free to use upstart, systemd, runit or any other service manager to run the `dyngo` executable.
 
 Example systemd & upstart scripts can be found in the `services` directory.
 
 ## Documentation
 
-This documentation can be found at github.com/gesquive/digitalocean-ddns
+This documentation can be found at github.com/gesquive/dyngo
 
 ## License
 

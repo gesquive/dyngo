@@ -1,0 +1,9 @@
+# place at /etc/logrotate.d/dyngo
+
+/var/log/dyngo.log {
+        size 100k
+        missingok
+        rotate 10
+        notifempty
+        create 0640 dyngo dyngo
+}

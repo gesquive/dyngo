@@ -5,4 +5,4 @@ dist/
 *.bak
 
 config.yml
-digitalocean-ddns
+dyngo

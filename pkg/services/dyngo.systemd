@@ -1,0 +1,27 @@
+# copy or hard link to
+#   Debian: /lib/systemd/system/dyngo.service
+#   Ubuntu: /etc/systemd/system/dyngo.service
+#
+# To start dyngo once for USER use:
+#   systemctl start dyngo@USER.service
+#
+# To start dyngo on boot for USER use:
+#   systemctl enable dyngo@USER.service
+#
+# Config will be placed in /etc/dyngo/config.yml
+
+[Unit]
+Description=digitalocean ddns service
+Documentation=https://github.com/gesquive/dyngo
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/dyngo
+User=dyngo
+Group=dyngo
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
