@@ -6,7 +6,7 @@ import (
 	"path"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
@@ -21,6 +21,8 @@ var logPath string
 var displayVersion string
 var showVersion bool
 var debug bool
+
+var log = logrus.New()
 
 func main() {
 	displayVersion = fmt.Sprintf("dyngo %s%s",
@@ -135,9 +137,9 @@ func preRun(cmd *cobra.Command, args []string) {
 	})
 
 	if debug {
-		log.SetLevel(log.DebugLevel)
+		log.SetLevel(logrus.DebugLevel)
 	} else {
-		log.SetLevel(log.InfoLevel)
+		log.SetLevel(logrus.InfoLevel)
 	}
 
 	log.Debug("Running with debug turned on")
