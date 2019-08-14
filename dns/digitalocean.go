@@ -2,6 +2,7 @@ package dns
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/digitalocean/godo"
@@ -9,23 +10,33 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const digitalOceanName = "DigitalOcean"
+const digitalOceanName = "digitalocean"
 
+// DigitalOceanDNS instance
 type DigitalOceanDNS struct {
-	name  Name
-	token string
-	auth  doAuth
-	log   *logrus.Entry
+	name   Name
+	token  string
+	auth   doAuth
+	record string
+	log    *logrus.Entry
 }
 
 // NewDigitalOceanDNS is DigitalOceanDNS constructor
-func NewDigitalOceanDNS(token string, logger *logrus.Logger) *DigitalOceanDNS {
+func NewDigitalOceanDNS(config ProviderConfig) (*DigitalOceanDNS, error) {
 	d := &DigitalOceanDNS{}
 	d.name = digitalOceanName
-	d.token = token
+	var ok bool
+	d.token, ok = config["token"]
+	if !ok {
+		return d, errors.New("token missing from DigitalOcean provider")
+	}
+	d.record, ok = config["domain"]
+	if !ok {
+		return d, errors.New(("domain missing from DigitalOcean provider"))
+	}
 
-	d.log = logger.WithFields(logrus.Fields{"dns": "do"})
-	return d
+	d.log = log.WithFields(logrus.Fields{"dns": "do"})
+	return d, nil
 }
 
 // GetName returns name identifier
@@ -33,11 +44,20 @@ func (d *DigitalOceanDNS) GetName() Name {
 	return d.name
 }
 
+// SyncARecord sets an A record to the given IPv4 address
+func (d *DigitalOceanDNS) SyncARecord(ipv4Address string) error {
+	return d.SyncRecord("A", ipv4Address)
+}
+
+// SyncAAAARecord sets an AAAA record to the given IPv6 address
+func (d *DigitalOceanDNS) SyncAAAARecord(ipv6Address string) error {
+	return d.SyncRecord("AAAA", ipv6Address)
+}
 // SyncRecord sets the given record to match ipAddress
-func (d *DigitalOceanDNS) SyncRecord(record string, ipAddress string) error {
+func (d *DigitalOceanDNS) SyncRecord(recordType string, ipAddress string) error {
 	// Authenticate with DigitalOcean
 	d.auth = newDoAuth(d.token)
-	domainName, recordName := doSplitDomainRecord(record)
+	domainName, recordName := doSplitDomainRecord(d.record)
 	d.log.Debugf("do: searching for domain=%s record=%s", domainName, recordName)
 
 	// First get a list of domain records
@@ -52,7 +72,7 @@ func (d *DigitalOceanDNS) SyncRecord(record string, ipAddress string) error {
 	d.log.Debugf("do: %d records found", len(records))
 	matchingIdx := -1
 	for idx, record := range records {
-		if record.Type == "A" {
+		if record.Type == recordType {
 			d.log.Debugf("do: record=%s", record)
 			if record.Name == recordName {
 				matchingIdx = idx
@@ -62,7 +82,7 @@ func (d *DigitalOceanDNS) SyncRecord(record string, ipAddress string) error {
 	}
 	if matchingIdx < 0 {
 		d.log.Infof("do: no matching record found, will attempt to create")
-		_, err = d.createDomainRecord(domainName, recordName, ipAddress)
+		_, err = d.createDomainRecord(domainName, recordName, recordType, ipAddress)
 		if err != nil {
 			d.log.Errorf("do: could not create a new domain record")
 			d.log.Errorf("do: err=%s", err)
@@ -81,7 +101,7 @@ func (d *DigitalOceanDNS) SyncRecord(record string, ipAddress string) error {
 
 	// Else, we need to update the domain record
 	editRequest := &godo.DomainRecordEditRequest{
-		Type: "A",
+		Type: recordType,
 		Data: ipAddress,
 	}
 	_, _, err = d.auth.Client.Domains.EditRecord(d.auth.Ctx, domainName, records[matchingIdx].ID, editRequest)
@@ -106,9 +126,10 @@ func (d *DigitalOceanDNS) getDomainRecords(domain string) ([]godo.DomainRecord, 
 	return records, err
 }
 
-func (d *DigitalOceanDNS) createDomainRecord(domainName string, recordName string, ipAddress string) (*godo.DomainRecord, error) {
+func (d *DigitalOceanDNS) createDomainRecord(domainName string, recordName string, 
+	recordType string, ipAddress string) (*godo.DomainRecord, error) {
 	createRequest := &godo.DomainRecordEditRequest{
-		Type: "A",
+		Type: recordType,
 		Name: recordName,
 		Data: ipAddress,
 	}

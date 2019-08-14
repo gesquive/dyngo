@@ -6,6 +6,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/gesquive/dyngo/dns"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -65,10 +66,11 @@ func init() {
 	RootCmd.PersistentFlags().BoolP("run-once", "o", false,
 		"Only run once and exit")
 
-	RootCmd.PersistentFlags().StringP("token", "t", "",
-		"The DigitalOcean API token to authenticate with")
-	RootCmd.PersistentFlags().StringP("domain", "d", "",
-		"The DigitalOcean domain record to update")
+	RootCmd.PersistentFlags().BoolP("ipv4", "4", true,
+		"Check for our WAN IPv4 address")
+	RootCmd.PersistentFlags().BoolP("ipv6", "6", true,
+		"Check for our WAN IPv6 address")
+
 	RootCmd.PersistentFlags().StringP("sync-interval", "i", "60m",
 		"The duration between DNS updates")
 
@@ -76,31 +78,24 @@ func init() {
 		"Include debug statements in log output")
 	RootCmd.PersistentFlags().MarkHidden("debug")
 
-	viper.SetEnvPrefix("doddns")
+	viper.SetEnvPrefix("dyngo")
 	viper.AutomaticEnv()
-	viper.BindEnv("token")
-	viper.BindEnv("domain")
-	viper.BindEnv("sync-interval")
-	viper.BindEnv("run-once")
 	viper.BindEnv("log-file")
+	viper.BindEnv("run-once")
+	viper.BindEnv("sync-interval")
+	viper.BindEnv("ipv4")
+	viper.BindEnv("ipv6")
 
-	viper.BindPFlag("token", RootCmd.PersistentFlags().Lookup("token"))
-	viper.BindPFlag("domain", RootCmd.PersistentFlags().Lookup("domain"))
-	viper.BindPFlag("sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
-	viper.BindPFlag("run_once", RootCmd.PersistentFlags().Lookup("run-once"))
 	viper.BindPFlag("log_file", RootCmd.PersistentFlags().Lookup("log-file"))
+	viper.BindPFlag("service.run_once", RootCmd.PersistentFlags().Lookup("run-once"))
+	viper.BindPFlag("service.sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
+	viper.BindPFlag("ip_check.ipv4", RootCmd.PersistentFlags().Lookup("ipv4"))
+	viper.BindPFlag("ip_check.ipv6", RootCmd.PersistentFlags().Lookup("ipv6"))
 
 	viper.SetDefault("log_file", "-")
-	viper.SetDefault("sync_interval", "60m")
-	viper.SetDefault("url_list", []string{
-		"http://icanhazip.com",
-		"http://whatismyip.akamai.com/",
-		"http://whatsmyip.me/",
-		"http://wtfismyip.com/text",
-		"http://api.ipify.org/",
-		"http://ip.catnapgames.com",
-		"http://ip.ryansanden.com",
-	})
+	viper.SetDefault("service.sync_interval", "60m")
+	viper.SetDefault("ip_check.ipv4_urls", []string{})
+	viper.SetDefault("ip_check.ipv6_urls", []string{})
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -159,32 +154,53 @@ func run(cmd *cobra.Command, args []string) {
 		log.SetOutput(logFile)
 	}
 
-	log.Infof("config: file=%s", viper.ConfigFileUsed())
-	domain := viper.GetString("domain")
-	if len(domain) == 0 {
-		log.Error("No domain specified")
+	log.Debugf("config: file=%s", viper.ConfigFileUsed())
+	checkIPv4 := viper.GetBool("ip_check.ipv4")
+	checkIPv6 := viper.GetBool("ip_check.ipv6")
+	log.Debugf("config: ipv4=%t ipv6=%t", checkIPv4, checkIPv6)
+	if !checkIPv4 && !checkIPv6 {
+		log.Errorf("IP checks for both IPv4 & IPv6 are turned off!")
 		os.Exit(2)
 	}
-	token := viper.GetString("token")
-	if len(token) == 0 {
-		log.Error("No DO token found")
-		os.Exit(2)
-	}
-	log.Debugf("config: domain=%s token=%s...",
-		viper.GetString("domain"),
-		viper.GetString("token")[:5])
 
-	if viper.GetBool("run_once") {
-		RunSync(viper.GetString("token"), viper.GetString("domain"))
+	if checkIPv4 {
+		log.Debugf("config: ipv4_urls=%q", viper.GetStringSlice("ip_check.ipv4_urls"))
+	}
+	if checkIPv6 {
+		log.Debugf("config: ipv6_urls=%q", viper.GetStringSlice("ip_check.ipv6_urls"))
+	}
+
+	dns.IntializeLogging(log)
+	dnsProviders, err := getDNSProviders()
+	if err != nil {
+		log.Errorf("could not parse dns_providers: %v", err)
+	}
+	log.Debugf("config: found %d dns providers", len(dnsProviders))
+
+	// domain := viper.GetString("domain")
+	// if len(domain) == 0 {
+	// 	log.Error("No domain specified")
+	// 	os.Exit(2)
+	// }
+	// token := viper.GetString("token")
+	// if len(token) == 0 {
+	// 	log.Error("No DO token found")
+	// 	os.Exit(2)
+	// // }
+	// log.Debugf("config: domain=%s token=%s...",
+	// 	viper.GetString("domain"),
+	// 	viper.GetString("token")[:5])
+
+	if viper.GetBool("service.run_once") {
+		RunSync(dnsProviders)
 	} else {
-		interval, err := time.ParseDuration(viper.GetString("sync_interval"))
+		interval, err := time.ParseDuration(viper.GetString("service.sync_interval"))
 		if err != nil {
 			log.Errorf("config: the given sync value is invalid sync_interval=%s err=%s",
-				viper.GetString("sync_interval"), err)
+				viper.GetString("service.sync_interval"), err)
 			os.Exit(1)
 		}
-		RunService(viper.GetString("token"), viper.GetString("domain"),
-			interval)
+		RunService(dnsProviders, interval)
 	}
 }
 
