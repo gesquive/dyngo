@@ -1,9 +1,9 @@
 package dns
 
 import (
-	"errors"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,11 +31,14 @@ func GetDNSProvider(config ProviderConfig) (dns Provider, err error) {
 		err = errors.New("config missing provider name")
 		return
 	}
-	switch strings.ToLower(strings.TrimSpace(name)) {
+	cleanName := strings.ToLower(strings.TrimSpace(name))
+	switch cleanName {
 	case digitalOceanName:
 		dns, err = NewDigitalOceanDNS(config)
+	case customScriptName:
+		dns, err = NewCustomScriptDNS(config)
 	default:
-		err = errors.New("dns provider name not recognized")
+		err = errors.Errorf("dns provider name '%s' not recognized", cleanName)
 	}
 	return
 }

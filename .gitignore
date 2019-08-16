@@ -1,6 +1,7 @@
 /bin/*
 vendor/*
 dist/
+scripts/
 
 *.bak
 
