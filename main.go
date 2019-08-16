@@ -176,20 +176,10 @@ func run(cmd *cobra.Command, args []string) {
 		log.Errorf("could not parse dns_providers: %v", err)
 	}
 	log.Debugf("config: found %d dns providers", len(dnsProviders))
-
-	// domain := viper.GetString("domain")
-	// if len(domain) == 0 {
-	// 	log.Error("No domain specified")
-	// 	os.Exit(2)
-	// }
-	// token := viper.GetString("token")
-	// if len(token) == 0 {
-	// 	log.Error("No DO token found")
-	// 	os.Exit(2)
-	// // }
-	// log.Debugf("config: domain=%s token=%s...",
-	// 	viper.GetString("domain"),
-	// 	viper.GetString("token")[:5])
+	if len(dnsProviders) == 0 {
+		log.Errorf("no providers found, exiting")
+		os.Exit(5)
+	}
 
 	if viper.GetBool("service.run_once") {
 		RunSync(dnsProviders)

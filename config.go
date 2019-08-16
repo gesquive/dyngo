@@ -24,7 +24,7 @@ func getDNSProviders() (dnsProvidersList, error) {
 	for i, providerConfig := range dnsConfigs {
 		dnsProvider, err := dns.GetDNSProvider(providerConfig)
 		if err != nil {
-			return dnsPrv, err
+			return nil, err
 		}
 		dnsPrv[i] = dnsProvider
 	}
