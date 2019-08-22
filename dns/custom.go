@@ -23,21 +23,21 @@ type CustomScriptDNS struct {
 
 // NewCustomScriptDNS is CustomScriptDNS constructor
 func NewCustomScriptDNS(config ProviderConfig) (*CustomScriptDNS, error) {
-	d := &CustomScriptDNS{}
-	d.name = customScriptName
+	c := &CustomScriptDNS{}
+	c.name = customScriptName
 	var ok bool
-	d.path, ok = config["path"]
+	c.path, ok = config["path"]
 	if !ok {
-		return d, errors.New("path missing from Custom Script provider")
+		return c, errors.New("path missing from Custom Script provider")
 	}
-	d.record, ok = config["domain"]
+	c.record, ok = config["record"]
 	if !ok {
-		return d, errors.New(("domain missing from Custom Script provider"))
+		return c, errors.New(("domain missing from Custom Script provider"))
 	}
-	d.args = config["args"]
+	c.args = config["args"]
 
-	d.log = log.WithFields(logrus.Fields{"dns": "cs"})
-	return d, nil
+	c.log = log.WithFields(logrus.Fields{"dns": "cus"})
+	return c, nil
 }
 
 // GetName returns name identifier
@@ -59,12 +59,12 @@ func (c *CustomScriptDNS) SyncAAAARecord(ipv6Address string) error {
 func (c *CustomScriptDNS) SyncRecord(recordType string, ipAddress string) error {
 	// Run the script
 	cmd := exec.Command(c.path, recordType, ipAddress, c.args)
-	log.Debugf("Running cmd %v", cmd.Args)
+	log.Debugf("cus: running cmd %v", cmd.Args)
 	var out bytes.Buffer
 	cmd.Stderr = &out
 	err := cmd.Run()
 	if err != nil {
-		log.Errorf("custom script '%s' returned with errors", c.path)
+		log.Errorf("cus: script '%s' returned with errors", c.path)
 		if out.Len() > 0 {
 			log.Errorf("stderr: %s", strings.TrimSpace(out.String()))
 		}
