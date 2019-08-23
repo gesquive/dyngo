@@ -33,6 +33,8 @@ func GetDNSProvider(config ProviderConfig) (dns Provider, err error) {
 	}
 	cleanName := strings.ToLower(strings.TrimSpace(name))
 	switch cleanName {
+	case cloudflareName:
+		dns, err = NewCloudflareDNS(config)
 	case digitalOceanName:
 		dns, err = NewDigitalOceanDNS(config)
 	case customScriptName:
