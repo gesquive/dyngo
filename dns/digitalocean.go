@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/digitalocean/godo"
 	"github.com/sirupsen/logrus"
@@ -30,9 +29,9 @@ func NewDigitalOceanDNS(config ProviderConfig) (*DigitalOceanDNS, error) {
 	if !ok {
 		return d, errors.New("token missing from DigitalOcean provider")
 	}
-	d.record, ok = config["domain"]
+	d.record, ok = config["record"]
 	if !ok {
-		return d, errors.New(("domain missing from DigitalOcean provider"))
+		return d, errors.New(("record missing from DigitalOcean provider"))
 	}
 
 	d.log = log.WithFields(logrus.Fields{"dns": "do"})
@@ -53,11 +52,12 @@ func (d *DigitalOceanDNS) SyncARecord(ipv4Address string) error {
 func (d *DigitalOceanDNS) SyncAAAARecord(ipv6Address string) error {
 	return d.SyncRecord("AAAA", ipv6Address)
 }
+
 // SyncRecord sets the given record to match ipAddress
 func (d *DigitalOceanDNS) SyncRecord(recordType string, ipAddress string) error {
 	// Authenticate with DigitalOcean
 	d.auth = newDoAuth(d.token)
-	domainName, recordName := doSplitDomainRecord(d.record)
+	domainName, recordName := SplitDomainRecord(d.record)
 	d.log.Debugf("do: searching for domain=%s record=%s", domainName, recordName)
 
 	// First get a list of domain records
@@ -126,7 +126,7 @@ func (d *DigitalOceanDNS) getDomainRecords(domain string) ([]godo.DomainRecord, 
 	return records, err
 }
 
-func (d *DigitalOceanDNS) createDomainRecord(domainName string, recordName string, 
+func (d *DigitalOceanDNS) createDomainRecord(domainName string, recordName string,
 	recordType string, ipAddress string) (*godo.DomainRecord, error) {
 	createRequest := &godo.DomainRecordEditRequest{
 		Type: recordType,
@@ -168,18 +168,4 @@ func newDoAuth(apiToken string) doAuth {
 		Ctx:    context.TODO(),
 	}
 	return auth
-}
-
-// ======== Helpers =============
-func doSplitDomainRecord(domainRecord string) (domain string, record string) {
-	domainParts := strings.Split(domainRecord, ".")
-	if len(domainParts) > 2 {
-		// sub.domain.net => domain.net
-		domain = strings.Join(domainParts[len(domainParts)-2:], ".")
-		record = strings.Join(domainParts[:len(domainParts)-2], ".")
-	} else {
-		domain = domainRecord
-		record = "@"
-	}
-	return
 }
