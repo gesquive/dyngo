@@ -96,9 +96,8 @@ func (c *CloudflareDNS) SyncRecord(recordType string, ipAddress string) error {
 				"err":    err,
 			}).Errorf("cfl: could not create a new domain record")
 			return err
-		} else {
-			c.log.Infof("cfl: new record suceessfully created")
 		}
+		c.log.Infof("cfl: new record suceessfully created")
 		return nil
 	}
 

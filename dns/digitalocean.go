@@ -87,9 +87,8 @@ func (d *DigitalOceanDNS) SyncRecord(recordType string, ipAddress string) error 
 			d.log.Errorf("do: could not create a new domain record")
 			d.log.Errorf("do: err=%s", err)
 			return err
-		} else {
-			d.log.Infof("do: new record successfully created")
 		}
+		d.log.Infof("do: new record successfully created")
 		return nil
 	}
 	d.log.Debugf("do: found matching record id=%d ip=%s",
