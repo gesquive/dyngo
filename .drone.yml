@@ -8,7 +8,7 @@ steps:
   - git fetch --tags
 
 - name: build
-  image: golang:1.12.6
+  image: golang:1.12.9
   volumes:
   - name: deps
     path: /go
@@ -16,7 +16,7 @@ steps:
   - make build
 
 - name: unit_tests
-  image: golang:1.12.6
+  image: golang:1.12.9
   volumes:
   - name: deps
     path: /go
@@ -26,7 +26,7 @@ steps:
   - make coverage
 
 - name: build_dist
-  image: golang:1.12.6
+  image: golang:1.12.9
   volumes:
   - name: deps
     path: /go
