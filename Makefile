@@ -25,6 +25,11 @@ DIST_PATH ?= dist
 INSTALL_PATH ?= "/usr/local/bin"
 PKG_LIST := ./...
 
+BIN ?= ${GOPATH}/bin
+GOLINT ?= ${BIN}/golint
+GOX ?= ${BIN}/gox
+GOP ?= ${BIN}/gop
+
 export SHELL ?= /bin/bash
 
 include make.cfg
@@ -61,6 +66,10 @@ path:
 deps: ## Download project dependencies
 	${GOCC} mod download
 
+.PHONY: lint
+lint: ${GOLINT} ## Lint the source code
+	${GOLINT} -set_exit_status ${PKG_LIST}
+
 .PHONY: test
 test: ## Run golang tests
 	${GOCC} test ${PKG_LIST}
@@ -92,16 +101,16 @@ clean: ## Clean the directory tree
 	rm -f "${COVER_PATH}"
 
 .PHONY: build-dist
-build-dist: gox
-	gox -verbose \
+build-dist: ${GOX}
+	${GOX} -verbose \
 	-ldflags "-X main.version=${MK_VERSION} -X main.dirty=${GIT_DIRTY}" \
 	-os=${DIST_OS} \
 	-arch=${DIST_ARCH} \
 	-output="${DIST_PATH}/{{.OS}}-{{.Arch}}/{{.Dir}}" .
 
 .PHONY: package-dist
-package-dist: gop
-	gop --delete \
+package-dist: ${GOP}
+	${GOP} --delete \
 	--os=${DIST_OS} \
 	--arch=${DIST_ARCH} \
 	--archive=${DIST_ARCHIVE} \
@@ -116,16 +125,17 @@ dist: build-dist package-dist ## Cross compile and package the full distribution
 fmt: ## Reformat the source tree with gofmt
 	find . -name '*.go' -not -path './.vendor/*' -exec gofmt -w=true {} ';'
 
-.PHONY: gox
-gox: bin/gox
-bin/gox:
-	@echo "Installing gox"
-	${GOCC} install github.com/mitchellh/gox
+# Install golang dependencies here
+${BIN}:
+	@echo "Making bin"
+	@mkdir -p $@
+${BIN}/%: ${BIN}
+	@echo "Installing ${PACKAGE} to ${BIN}"
+	@tmp=$$(mktemp -d); \
+       env GO111MODULE=off GOPATH=$$tmp GOBIN=${BIN} ${GOCC} get ${PACKAGE} \
+        || ret=$$?; \
+       rm -rf $$tmp ; exit $$ret
 
-.PHONY: gop
-gop: bin/gop
-	@gop --version
-bin/gop:
-	@echo "Installing gop"
-	${GOCC} install github.com/gesquive/gop
-
+${BIN}/golint: PACKAGE=golang.org/x/lint/golint
+${BIN}/gox:    PACKAGE=github.com/mitchellh/gox
+${BIN}/gop:    PACKAGE=github.com/gesquive/gop
