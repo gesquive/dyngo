@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"runtime"
 	"time"
 
 	"github.com/gesquive/dyngo/dns"
@@ -13,23 +14,21 @@ import (
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-var version = "v0.2.0-dev"
-var dirty = ""
+var (
+	buildVersion = "v0.3.0-dev"
+	buildCommit  = ""
+	buildDate    = ""
+)
 
-var cfgFile string
 var logPath string
 
-var displayVersion string
 var showVersion bool
 var debug bool
 
 var log = logrus.New()
 
 func main() {
-	displayVersion = fmt.Sprintf("dyngo %s%s",
-		version,
-		dirty)
-	Execute(displayVersion)
+	Execute()
 }
 
 // RootCmd handles all of our arguments/options
@@ -43,10 +42,9 @@ and updates a DigitalOcean domain record when a change is detected`,
 }
 
 // Execute is the starting point
-func Execute(version string) {
-	displayVersion = version
-	RootCmd.SetHelpTemplate(fmt.Sprintf("%s\nVersion:\n  github.com/gesquive/%s\n",
-		RootCmd.HelpTemplate(), displayVersion))
+func Execute() {
+	RootCmd.SetHelpTemplate(fmt.Sprintf("%s\nVersion:\n  github.com/gesquive/dyngo %s\n",
+		RootCmd.HelpTemplate(), buildVersion))
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
@@ -56,7 +54,7 @@ func Execute(version string) {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "",
+	RootCmd.PersistentFlags().StringP("config", "", "",
 		"Path to a specific config file (default \"./config.yaml\")")
 	RootCmd.PersistentFlags().String("log-file", "",
 		"Path to log file (default \"-\")")
@@ -80,12 +78,14 @@ func init() {
 
 	viper.SetEnvPrefix("dyngo")
 	viper.AutomaticEnv()
+	viper.BindEnv("config")
 	viper.BindEnv("log-file")
 	viper.BindEnv("run-once")
 	viper.BindEnv("sync-interval")
 	viper.BindEnv("ipv4")
 	viper.BindEnv("ipv6")
 
+	viper.BindPFlag("config", RootCmd.PersistentFlags().Lookup("config"))
 	viper.BindPFlag("log_file", RootCmd.PersistentFlags().Lookup("log-file"))
 	viper.BindPFlag("service.run_once", RootCmd.PersistentFlags().Lookup("run-once"))
 	viper.BindPFlag("service.sync_interval", RootCmd.PersistentFlags().Lookup("sync-interval"))
@@ -100,15 +100,16 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	cfgFile := viper.GetString("config")
 	if cfgFile != "" { // enable ability to specify config file via flag
 		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.SetConfigName("config") // name of config file (without extension)
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME/.config/dyngo") // adding home directory as first search path
+		viper.AddConfigPath("/etc/dyngo")
+		viper.AutomaticEnv() // read in environment variables that match
 	}
-
-	viper.SetConfigName("config") // name of config file (without extension)
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME/.config/dyngo") // adding home directory as first search path
-	viper.AddConfigPath("/etc/dyngo")
-	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
@@ -123,7 +124,16 @@ func initConfig() {
 
 func preRun(cmd *cobra.Command, args []string) {
 	if showVersion {
-		fmt.Println(displayVersion)
+		fmt.Printf("github.com/gesquive/dyngo\n")
+		fmt.Printf(" Version:    %s\n", buildVersion)
+		if len(buildCommit) > 6 {
+			fmt.Printf(" Git Commit: %s\n", buildCommit[:7])
+		}
+		if buildDate != "" {
+			fmt.Printf(" Build Date: %s\n", buildDate)
+		}
+		fmt.Printf(" Go Version: %s\n", runtime.Version())
+		fmt.Printf(" OS/Arch:    %s/%s\n", runtime.GOOS, runtime.GOARCH)
 		os.Exit(0)
 	}
 

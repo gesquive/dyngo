@@ -1,30 +1,37 @@
 # dyngo
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/dyngo)
 [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
-[![Build Status](https://img.shields.io/drone/build/gesquive/dyngo.svg?style=flat-square)](https://cloud.drone.io/gesquive/dyngo)
-
-Sync a DigitalOcean Domain Record entry with your public IP.
+[![Build Status](https://img.shields.io/gitlab/pipeline/gesquive/dyngo?style=flat-square)](https://gitlab.com/gesquive/dyngo/pipelines)
+[![Coverage Report](https://gitlab.com/gesquive/dyngo/badges/master/coverage.svg?style=flat-square)](https://gesquive.gitlab.io/dyngo/coverage.html)
+Sync a DigitalOcean/Cloudflare/Custom DNS entry with your public IP.
 
 ### Why?
-I created this because the domain I own was being managed on the DigitalOcean nameservers and I didn't want to pay for a DDNS service for another domain. Using this app, I can host my website at `mydomain.com` but also have a subdomain of my choosing (ie. `dev.mydomain.com`) point to my dev network hosted elsewhere behind a dynamic IP.
+I created this because the domain I own was being managed in some cloud nameservers and I didn't want to pay for a DDNS service for another domain. Using this app, I can host my website at `mydomain.com` but also have a subdomain of my choosing (ie. `dev.mydomain.com`) point to my dev network hosted elsewhere behind a dynamic IP.
 
 ## Installing
 
 ### Compile
-This project has only been tested with go1.11+. To compile just run `go get -u github.com/gesquive/dyngo` and the executable should be built for you automatically in your `$GOPATH`.
+This project has only been tested with go1.11+. To compile just run `go get -u github.com/gesquive/dyngo` and the executable should be built for you automatically in your `$GOPATH`. This project uses go mods, so you might need to set `GO111MODULE=on` in order for `go get` to complete properly.
 
 Optionally you can run `make install` to build and copy the executable to `/usr/local/bin/` with correct permissions.
 
 ### Download
-You could also download the latest release for your platform from [github](https://github.com/gesquive/dyngo/releases).
+You could download the latest release for your platform from [github](https://github.com/gesquive/dyngo/releases).
 
 Once you have an executable, make sure to copy it somewhere on your path like `/usr/local/bin` or `C:/Program Files/`.
 If on a \*nix/mac system, make sure to run `chmod +x /path/to/dyngo`.
 
-## Configuration
+## DNS Provider Configuration
 
-Before configuring, make sure that the domain exists in your DigitalOcean account. DigitalOcean provides excellent [documentation](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) on this subject.
+Before configuring and running dyngo, make sure that the domain exists in your cloud account. Specifics can be found below.
+
+### DigitalOcean DNS
+DigitalOcean provides excellent [documentation](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) on this adding domains to DNS.
 Also, when generating your DigitalOcean [personal access token](https://www.digitalocean.com/docs/api/create-personal-access-token/), make sure the token has read/write permissions.
+
+### Cloudflare DNS
+You will need to [add your domain](https://support.cloudflare.com/hc/en-us/articles/201720164-Creating-a-Cloudflare-account-and-adding-a-website) to cloudflare before you can [manage any records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare).
+An API token will need to be [created](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys) with at least the `Zone.Zone:Read, Zone.DNS:Edit`.
 
 
 ### Precedence Order
@@ -47,7 +54,7 @@ Copy `config.example.yml` to one of these locations and populate the values with
 If you are planning to run this app as a service/cronjob, it is recommended that you place the config in `/etc/dyngo/config.yml`. Otherwise, if running from the command line, place the config in `~/.config/dyngo/config.yml` and make sure to set `run_once: true`.
 
 ### Environment Variables
-Optionally, instead of using a config file you can specify config entries as environment variables. Use the prefix `DODDNS_` in front of the uppercased variable name. For example, the config variable `sync-interval` would be the environment variable `DODDNS_SYNC_INTERVAL`.
+Optionally, instead of using a config file you can specify config entries as environment variables. Use the prefix `DYNGO_` in front of the uppercased variable name. For example, the config variable `sync-interval` would be the environment variable `DYNGO_SYNC_INTERVAL`.
 
 ## Usage
 

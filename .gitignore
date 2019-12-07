@@ -2,6 +2,7 @@
 vendor/*
 dist/
 scripts/
+config/
 
 *.bak
 
