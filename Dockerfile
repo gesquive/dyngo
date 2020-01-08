@@ -20,7 +20,7 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /app/${APP} /app/
 
 # Use an unprivileged user
-USER runuser
+USER runner
 
 ENV DYNGO_CONFIG "/config/config.yml"
 
