@@ -108,7 +108,6 @@ func initConfig() {
 		viper.AddConfigPath(".")
 		viper.AddConfigPath("$HOME/.config/dyngo") // adding home directory as first search path
 		viper.AddConfigPath("/etc/dyngo")
-		viper.AutomaticEnv() // read in environment variables that match
 	}
 
 	// If a config file is found, read it in.
