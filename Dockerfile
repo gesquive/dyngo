@@ -23,6 +23,8 @@ COPY --from=builder /app/${APP} /app/
 USER runner
 
 ENV DYNGO_CONFIG "/config/config.yml"
+ENV DYNGO_LOG_FILE "stdout"
+ENV DYNGO_RUN_ONCE false
 
 VOLUME /config
 
