@@ -3,6 +3,8 @@
 [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
 [![Build Status](https://img.shields.io/gitlab/pipeline/gesquive/dyngo?style=flat-square)](https://gitlab.com/gesquive/dyngo/pipelines)
 [![Coverage Report](https://gitlab.com/gesquive/dyngo/badges/master/coverage.svg?style=flat-square)](https://gesquive.gitlab.io/dyngo/coverage.html)
+[![Docker Pulls](https://img.shields.io/docker/pulls/gesquive/dyngo?style=flat-square)](https://hub.docker.com/r/gesquive/dyngo)
+
 Sync a DigitalOcean/Cloudflare/Custom DNS entry with your public IP.
 
 ### Why?
@@ -21,18 +23,17 @@ You could download the latest release for your platform from [github](https://gi
 Once you have an executable, make sure to copy it somewhere on your path like `/usr/local/bin` or `C:/Program Files/`.
 If on a \*nix/mac system, make sure to run `chmod +x /path/to/dyngo`.
 
-## DNS Provider Configuration
+### Docker
+You can also run dyngo from the provided [Docker image](https://hub.docker.com/r/gesquive/dyngo) with the sample configuration file:
 
-Before configuring and running dyngo, make sure that the domain exists in your cloud account. Specifics can be found below.
+```shell
+mkdir -p dyngo && cp pkg/config.example.yml dyngo/config.yml
+docker run -d -v $PWD/dyngo:/config dyngo:latest
+```
 
-### DigitalOcean DNS
-DigitalOcean provides excellent [documentation](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) on this adding domains to DNS.
-Also, when generating your DigitalOcean [personal access token](https://www.digitalocean.com/docs/api/create-personal-access-token/), make sure the token has read/write permissions.
+While dyngo will technically run with the sample config, it won't have any domain to sync too. You will need to edit the config to add dns providers.
 
-### Cloudflare DNS
-You will need to [add your domain](https://support.cloudflare.com/hc/en-us/articles/201720164-Creating-a-Cloudflare-account-and-adding-a-website) to cloudflare before you can [manage any records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare).
-An API token will need to be [created](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys) with at least the `Zone.Zone:Read, Zone.DNS:Edit`.
-
+For more details read the [Docker image documentation](https://hub.docker.com/r/gesquive/dyngo).
 
 ### Precedence Order
 The application looks for variables in the following order:
@@ -96,6 +97,53 @@ Add any flags/env vars needed to make sure the job runs as intended. If not usin
 By default, the process is setup to run as a service. Feel free to use upstart, systemd, runit or any other service manager to run the `dyngo` executable.
 
 Example systemd & upstart scripts can be found in the `services` directory.
+
+
+## DNS Provider Configuration
+
+Before configuring and running dyngo, make sure that the domain exists in your cloud account. Specifics can be found below.
+
+### `digitalocean`
+DigitalOcean DNS provides excellent [documentation](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) on this adding domains to DNS.
+
+ - `record`: The record to set the IP on (ie. `ddns.mydomain.com`)
+ - `token`: The DigitalOcean [personal access token](https://www.digitalocean.com/docs/api/create-personal-access-token/). Token requires read/write permissions.
+
+
+### `cloudflare`
+You will need to [add your domain](https://support.cloudflare.com/hc/en-us/articles/201720164-Creating-a-Cloudflare-account-and-adding-a-website) to Cloudflare before you can [manage any records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare).
+- `record`: The record to set the IP on (ie. `ddns.mydomain.com`)
+- `token`: The [Cloudflare API Token](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys). API token requires at least the `Zone.Zone:Read, Zone.DNS:Edit` permissions.
+
+### `custom`
+If your provider is not found above, it is possible to run a custom script as well. The `custom` DNS provider supports the following config options:
+
+- `record`: The record to set the IP on (ie. `ddns.mydomain.com`)
+- `path`: The relative path to the script
+- `args`: Arguments to pass to the script when executing
+
+Scripts should expect the following arguments when being executed:
+- Record - the record value from the config example: `custom.domain.com`
+- Record Type - example: `A`, `AAAA`
+- IP Address - example: `192.168.1.100`, `2001:cdba::3257:9652`
+- args -  The args value from the config
+
+For example, a config with the following value:
+
+```yaml
+dns_providers:
+  name: custom
+  # The domain record to pass to the script
+  record: custom.domain.com
+  # The relative path to the script
+  path: path/to/custom_script.sh
+  # The arguments to pass when executing the script
+  args: "-D"
+```
+would possible result in the following call: 
+
+`path/to/custom_script.sh custom.domain.com A 192.168.10.10 -D`
+
 
 ## Documentation
 
