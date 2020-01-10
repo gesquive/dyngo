@@ -58,7 +58,7 @@ func (c *CustomScriptDNS) SyncAAAARecord(ipv6Address string) error {
 // SyncRecord sets the given record to match ipAddress
 func (c *CustomScriptDNS) SyncRecord(recordType string, ipAddress string) error {
 	// Run the script
-	cmd := exec.Command(c.path, recordType, ipAddress, c.args)
+	cmd := exec.Command(c.path, c.record, recordType, ipAddress, c.args)
 	log.Debugf("cus: running cmd %v", cmd.Args)
 	var out bytes.Buffer
 	cmd.Stderr = &out
