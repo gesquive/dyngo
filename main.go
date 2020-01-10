@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gesquive/dyngo/dns"
@@ -57,7 +58,7 @@ func init() {
 	RootCmd.PersistentFlags().StringP("config", "", "",
 		"Path to a specific config file (default \"./config.yaml\")")
 	RootCmd.PersistentFlags().String("log-file", "",
-		"Path to log file (default \"-\")")
+		"Path to log file (default \"/var/log/dyngo.log\")")
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
 		"Display the version number and exit")
@@ -92,7 +93,7 @@ func init() {
 	viper.BindPFlag("ip_check.ipv4", RootCmd.PersistentFlags().Lookup("ipv4"))
 	viper.BindPFlag("ip_check.ipv6", RootCmd.PersistentFlags().Lookup("ipv6"))
 
-	viper.SetDefault("log_file", "-")
+	viper.SetDefault("log_file", "/var/log/dyngo.log")
 	viper.SetDefault("service.sync_interval", "60m")
 	viper.SetDefault("ip_check.ipv4_urls", []string{})
 	viper.SetDefault("ip_check.ipv6_urls", []string{})
@@ -152,7 +153,7 @@ func preRun(cmd *cobra.Command, args []string) {
 func run(cmd *cobra.Command, args []string) {
 	logFilePath := getLogFilePath(viper.GetString("log_file"))
 	log.Debugf("config: log_file=%s", logFilePath)
-	if logFilePath == "" || logFilePath == "-" {
+	if strings.ToLower(logFilePath) == "stdout" || logFilePath == "" || logFilePath == "-" {
 		log.SetOutput(os.Stdout)
 	} else {
 		logFile, err := os.OpenFile(logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
