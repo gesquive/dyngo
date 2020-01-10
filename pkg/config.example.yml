@@ -1,19 +1,55 @@
-# Your DigitalOcean API token
-# Generate your own: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token
-token: obxmw2sef58156crn6fn089q1nokyfgp9kl647l16br4hzfcw80r4dm6rth9871u
-# The domain record on the DigitalOcean NS to update
-domain: my.domain.com
-# If running as a service, the amount of time to run between sync
-# Valid values are parsed by golang's duration class: https://golang.org/pkg/time/#ParseDuration
-sync_interval: 1h
-# The log file path
-log_file: /var/log/dyngo.log
-# If you want to run once every time, set to true
-run_once: false
-# A list of urls to get plain text public IP from
-url_list:
-  - "http://icanhazip.com"
-  - "http://whatsmyip.me/"
-  - "http://wtfismyip.com/text"
-  - "http://api.ipify.org/"
-  - "http://ip.ryansanden.com"
+
+service:
+  # If running as a service, the amount of time to run between sync
+  # Valid values are parsed by golang's duration class: https://golang.org/pkg/time/#ParseDuration
+  sync_interval: 1h
+  # The log file path
+  log_file: dyngo.log
+  # If you want to run once every time, set to true
+  run_once: false
+
+ip_check:
+  # If true, try to get our IPv4 address (default: true)
+  ipv4: true
+  # A list of urls to get plain text public IPv4
+  ipv4_urls:
+    - "http://ipv4.icanhazip.com"
+    - "http://whatsmyip.me/"
+    - "http://ipv4.wtfismyip.com/text"
+    - "http://api.ipify.org/"
+  # If true, try to get our IPv6 address (default: true)
+  ipv6: true
+  # A list of urls to get plain text public IPv6
+  ipv6_urls:
+    - "http://ipv6.icanhazip.com"
+    - "http://ipv6.wtfismyip.com/text"
+    - "http://api6.ipify.org/"
+  
+
+# Full documentation and options for DNS providers can be found in the documentation
+# https://github.com/gesquive/dyngo#dns-provider-configuration
+dns_providers:
+  - 
+    # The DNS provider name
+    name: digitalocean
+    # The domain record on the DigitalOcean NS to update
+    record: mydo.domain.com
+    # Your DigitalOcean API token
+    # Generate your own: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token
+    token: obxmw2sef58156crn6fn089q1nokyfgp9kl647l16br4hzfcw80r4dm6rth9871u
+  -
+    # The DNS provider name
+    name: cloudflare
+    # The domain record on the Cloudflare NS to update
+    record: mycf.domain.com
+    # Your Cloudflare API Token
+    token: m3tj6qezTBwursNQzLaPBYuVbgRdhDaXWRyrLmgy
+  -
+    name: custom
+    # The domain record to pass to the script
+    record: custom.domain.com
+    # The relative path to the script
+    path: scripts/custom_dns.sh
+    # The arguments to pass when executing the script
+    args: "-D"
+    
