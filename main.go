@@ -61,7 +61,7 @@ func init() {
 		"Path to log file (default \"/var/log/dyngo.log\")")
 
 	RootCmd.PersistentFlags().BoolVar(&showVersion, "version", false,
-		"Display the version number and exit")
+		"Display the version info and exit")
 	RootCmd.PersistentFlags().BoolP("run-once", "o", false,
 		"Only run once and exit")
 

@@ -1,0 +1,37 @@
+
+service:
+  # If running as a service, the amount of time to run between sync
+  # Valid values are parsed by golang's duration class: https://golang.org/pkg/time/#ParseDuration
+  sync_interval: 1h
+  # The log file path
+  log_file: stdout
+  # If you want to run once every time, set to true
+  run_once: false
+
+ip_check:
+  # If true, try to get our IPv4 address (default: true)
+  ipv4: true
+  # A list of urls to get plain text public IPv4
+  ipv4_urls:
+    - "http://ipv4.icanhazip.com"
+    - "http://whatsmyip.me/"
+    - "http://ipv4.wtfismyip.com/text"
+    - "http://api.ipify.org/"
+  # If true, try to get our IPv6 address (default: true)
+  ipv6: true
+  # A list of urls to get plain text public IPv6
+  ipv6_urls:
+    - "http://ipv6.icanhazip.com"
+    - "http://ipv6.wtfismyip.com/text"
+    - "http://api6.ipify.org/"
+  
+
+# Full documentation and options for DNS providers can be found in the documentation
+# https://github.com/gesquive/dyngo#dns-provider-configuration
+dns_providers:
+  -
+    # This is a script that does nothing, make sure to replace it with another dns provider
+    name: custom
+    record: no.domain.io
+    path: /etc/dyngo/snakeoil.sh
+    

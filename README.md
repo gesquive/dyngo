@@ -24,10 +24,9 @@ Once you have an executable, make sure to copy it somewhere on your path like `/
 If on a \*nix/mac system, make sure to run `chmod +x /path/to/dyngo`.
 
 ### Docker
-You can also run dyngo from the provided [Docker image](https://hub.docker.com/r/gesquive/dyngo) with the sample configuration file:
+You can also run dyngo from the provided [Docker image](https://hub.docker.com/r/gesquive/dyngo) and by providing a configuration file:
 
 ```shell
-mkdir -p dyngo && cp pkg/config.example.yml dyngo/config.yml
 docker run -d -v $PWD/dyngo:/config dyngo:latest
 ```
 
@@ -67,12 +66,11 @@ Usage:
 
 Flags:
       --config string          Path to a specific config file (default "./config.yaml")
-  -d, --domain string          The DigitalOcean domain record to update
-  -h, --help                   help for dyngo
-      --log-file string        Path to log file (default "-")
+  -4, --ipv4                   Check for our WAN IPv4 address (default true)
+  -6, --ipv6                   Check for our WAN IPv6 address (default true)
+      --log-file string        Path to log file (default "/var/log/dyngo.log")
   -o, --run-once               Only run once and exit
   -i, --sync-interval string   The duration between DNS updates (default "60m")
-  -t, --token string           The DigitalOcean API token to authenticate with
       --version                Display the version number and exit
 ```
 
