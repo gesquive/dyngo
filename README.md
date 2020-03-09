@@ -1,8 +1,8 @@
 # dyngo
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/gesquive/dyngo)
 [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/gesquive/dyngo/blob/master/LICENSE)
-[![Build Status](https://img.shields.io/gitlab/pipeline/gesquive/dyngo?style=flat-square)](https://gitlab.com/gesquive/dyngo/pipelines)
-[![Coverage Report](https://gitlab.com/gesquive/dyngo/badges/master/coverage.svg?style=flat-square)](https://gesquive.gitlab.io/dyngo/coverage.html)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://pkg.go.dev/github.com/gesquive/dyngo)
+[![Build Status](https://img.shields.io/circleci/build/github/gesquive/dyngo?style=flat-square)](https://circleci.com/gh/gesquive/dyngo)
+[![Coverage Report](https://img.shields.io/codecov/c/gh/gesquive/dyngo?style=flat-square)](https://codecov.io/gh/gesquive/dyngo)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gesquive/dyngo?style=flat-square)](https://hub.docker.com/r/gesquive/dyngo)
 
 Sync a DigitalOcean/Cloudflare/Custom DNS entry with your public IP.
